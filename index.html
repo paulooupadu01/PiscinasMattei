@@ -1571,4 +1571,1692 @@
                     }
                 } else {
                     btn.className = 'h-12 px-1 sm:px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition';
-                    view.classList.a
+                    view.classList.add('hidden');
+                    if (t === 'financeiro') {
+                        badge.className = 'px-1.5 py-0.5 text-[10px] rounded-full bg-amber-50 text-amber-700 font-bold shrink-0';
+                    } else {
+                        badge.className = 'px-1.5 py-0.5 text-[10px] rounded-full bg-slate-100 text-slate-600 font-bold shrink-0';
+                    }
+                }
+            });
+
+            refreshAllViews();
+        }
+
+        function refreshAllViews() {
+            updateStats();
+            renderDayFilters();
+            renderClients();
+            renderPlanTypeFilters();
+            renderBaseClients();
+            renderFinFilters();
+            renderFinanceiro();
+        }
+
+        function updateStats() {
+            const routeItems = getAllRouteItems();
+            const weekTotal = routeItems.length;
+            const weekCompleted = routeItems.filter(item => item.completed).length;
+            const weekPending = weekTotal - weekCompleted;
+
+            document.getElementById('stat-week-total').textContent = weekTotal;
+            document.getElementById('stat-week-completed').textContent = weekCompleted;
+            document.getElementById('stat-week-pending').textContent = weekPending;
+
+            const finEntries = getAllFinancialEntries();
+            const pendingPaymentCount = finEntries.filter(e => !e.paid).length;
+
+            document.getElementById('tab-badge-rota').textContent = weekTotal;
+            document.getElementById('tab-badge-clientes').textContent = clients.length;
+            document.getElementById('tab-badge-financeiro').textContent = pendingPaymentCount;
+        }
+
+        // ---------------------------------------------------------------------
+        // 7. ABA 1: ROTA SEMANAL
+        // ---------------------------------------------------------------------
+        function renderDayFilters() {
+            const container = document.getElementById('day-filters');
+            if (!container) return;
+            const todayName = getTodayDayName();
+            const routeItems = getAllRouteItems();
+
+            container.innerHTML = DAYS_LIST.map(d => {
+                const isSelected = selectedDay === d.id;
+                const isToday = d.id === todayName;
+                const count = d.id === 'Todos' 
+                    ? routeItems.length 
+                    : routeItems.filter(item => item.day === d.id).length;
+
+                return `
+                    <button 
+                        type="button"
+                        data-day="${escapeHTML(d.id)}"
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap border ${
+                            isSelected 
+                            ? 'bg-pool-600 text-white border-pool-600 shadow-sm' 
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }"
+                    >
+                        <span>${escapeHTML(d.label)}</span>
+                        ${isToday ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-pool-500'}" title="Hoje"></span>` : ''}
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md ${
+                            isSelected ? 'bg-pool-700 text-pool-100' : 'bg-slate-100 text-slate-500'
+                        }">${count}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectDayFilter(day) {
+            selectedDay = day;
+            renderDayFilters();
+            renderClients();
+        }
+
+        function filterToday() {
+            const today = getTodayDayName();
+            if (today === 'Domingo') {
+                showToast('Hoje é Domingo! Mostrando todos os clientes.');
+                selectDayFilter('Todos');
+            } else {
+                selectDayFilter(today);
+                showToast(`Mostrando rota de ${today}`);
+            }
+        }
+
+        function togglePendingFilter() {
+            onlyPending = !onlyPending;
+            const btn = document.getElementById('btn-filter-pending');
+            if (onlyPending) {
+                btn.classList.add('bg-amber-50', 'border-amber-400', 'text-amber-800');
+                btn.classList.remove('bg-white', 'border-slate-200', 'text-slate-700');
+            } else {
+                btn.classList.remove('bg-amber-50', 'border-amber-400', 'text-amber-800');
+                btn.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
+            }
+            renderClients();
+        }
+
+        function clearAllFilters() {
+            selectedDay = 'Todos';
+            onlyPending = false;
+            document.getElementById('search-input').value = '';
+            const btn = document.getElementById('btn-filter-pending');
+            btn.classList.remove('bg-amber-50', 'border-amber-400', 'text-amber-800');
+            btn.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
+            renderDayFilters();
+            renderClients();
+        }
+
+        function renderClients() {
+            const listEl = document.getElementById('clients-list');
+            const emptyEl = document.getElementById('empty-state');
+            const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('clear-search');
+            const query = searchInput.value.trim().toLowerCase();
+
+            clearBtn.classList.toggle('hidden', query.length === 0);
+
+            const routeItems = getAllRouteItems();
+
+            const filtered = routeItems.filter(item => {
+                const c = item.client;
+                const fullAddr = getClientFullAddress(c).toLowerCase();
+                const matchDay = selectedDay === 'Todos' || item.day === selectedDay;
+                const matchPending = !onlyPending || !item.completed;
+                const reasonText = item.extra ? item.extra.reason.toLowerCase() : '';
+                const matchQuery = !query || 
+                    (c.name || '').toLowerCase().includes(query) ||
+                    fullAddr.includes(query) ||
+                    reasonText.includes(query);
+                return matchDay && matchPending && matchQuery;
+            });
+
+            document.getElementById('results-label').textContent = `${filtered.length} ${filtered.length === 1 ? 'visita na rota' : 'visitas na rota'}`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            listEl.innerHTML = filtered.map(item => {
+                const client = item.client;
+                const fullAddress = getClientFullAddress(client);
+                const encodedAddress = encodeURIComponent(fullAddress);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
+                const safeId = escapeHTML(client.id);
+
+                // Card de Visita Extra de Mensalista
+                if (item.kind === 'extra') {
+                    const extra = item.extra;
+                    const safeExtraId = escapeHTML(extra.id);
+                    const extraCompleted = extra.completed;
+                    const extraPaid = extra.paid;
+                    const extraPriceFormatted = formatBRL(extra.value);
+
+                    return `
+                    <article class="bg-white rounded-2xl border ${extraCompleted ? 'border-emerald-300' : 'border-indigo-300'} border-l-4 ${extraCompleted ? 'border-l-emerald-500' : 'border-l-indigo-600'} shadow-sm overflow-hidden transition">
+                        <div class="p-4 pb-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-indigo-600 text-white flex items-center gap-1">
+                                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                            <span>Visita Extra • Mensalista</span>
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                                            ${escapeHTML(extra.day)}
+                                        </span>
+                                    </div>
+
+                                    <h3 class="font-extrabold text-slate-900 text-base leading-snug mt-1.5">${escapeHTML(client.name)}</h3>
+
+                                    <p class="text-xs font-medium text-slate-600 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-extrabold text-indigo-700">${extraPriceFormatted}</span>
+                                        <span class="text-slate-300">|</span>
+                                        <span>${escapeHTML(client.phone)}</span>
+                                    </p>
+                                </div>
+
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    ${extra.value > 0 ? `
+                                        <button 
+                                            type="button"
+                                            data-action="toggle-extra-payment"
+                                            data-id="${safeId}"
+                                            data-extra-id="${safeExtraId}"
+                                            title="Alternar pagamento desta visita extra"
+                                            class="px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition active:scale-95 ${
+                                                extraPaid 
+                                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' 
+                                                : 'bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100'
+                                            }"
+                                        >
+                                            <span>${extraPaid ? 'Pago' : 'Pendente'}</span>
+                                        </button>
+                                    ` : ''}
+
+                                    <button 
+                                        type="button"
+                                        data-action="delete-extra-visit"
+                                        data-id="${safeId}"
+                                        data-extra-id="${safeExtraId}"
+                                        title="Remover visita extra"
+                                        class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition"
+                                    >
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mt-2.5 px-3 py-2 bg-indigo-50/90 border border-indigo-200/90 rounded-xl flex items-start gap-2">
+                                <svg class="w-3.5 h-3.5 text-indigo-600 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                <p class="text-xs font-bold text-indigo-950 leading-relaxed">Serviço: ${escapeHTML(extra.reason)}</p>
+                            </div>
+
+                            <!-- Endereço + Waze e Google Maps -->
+                            <div class="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/90 space-y-2.5">
+                                <div class="flex items-start gap-2 min-w-0">
+                                    <svg class="w-4 h-4 text-rose-500 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    <p class="text-xs font-bold text-slate-900 leading-snug">${escapeHTML(fullAddress)}</p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a 
+                                        href="${wazeUrl}" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        class="py-2.5 px-3 bg-sky-500 hover:bg-sky-600 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition"
+                                    >
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                                        <span>Waze</span>
+                                    </a>
+                                    <a 
+                                        href="${mapsUrl}" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        class="py-2.5 px-3 bg-white hover:bg-blue-50 active:scale-98 text-blue-700 border border-slate-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition"
+                                    >
+                                        <svg class="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                                        <span>Maps</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-4 py-3 bg-indigo-50/40 border-t border-indigo-100 flex items-center justify-between gap-2.5">
+                            <button 
+                                type="button"
+                                data-action="toggle-extra-complete"
+                                data-id="${safeId}"
+                                data-extra-id="${safeExtraId}"
+                                class="flex-1 py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-98 border ${
+                                    extraCompleted 
+                                    ? 'bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200' 
+                                    : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200'
+                                }"
+                            >
+                                <svg class="w-4 h-4 ${extraCompleted ? 'text-emerald-700' : 'text-indigo-500'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>${extraCompleted ? 'Extra Concluída' : 'Concluir Extra'}</span>
+                            </button>
+
+                            <button 
+                                type="button"
+                                data-action="open-whatsapp-extra"
+                                data-id="${safeId}"
+                                data-extra-id="${safeExtraId}"
+                                class="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/20 transition"
+                            >
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                <span>WhatsApp</span>
+                            </button>
+                        </div>
+                    </article>
+                    `;
+                }
+
+                // Card de Plano Mensal ou Visita Avulsa
+                const isMensal = isClientMensal(client);
+                const paid = isClientPaid(client);
+                const completed = isClientCompleted(client);
+                const lastVisit = getClientLastVisit(client);
+                const priceFormatted = formatBRL(client.price);
+                const dueDayText = (isMensal && client.dueDay) ? ` • Venc. dia ${client.dueDay}` : '';
+                const extrasCount = isMensal ? getClientExtraVisits(client).length : 0;
+
+                return `
+                <article class="bg-white rounded-2xl border ${completed ? 'border-emerald-300' : (!isMensal ? 'border-purple-200' : 'border-slate-200')} shadow-sm overflow-hidden transition hover:border-pool-300">
+                    <div class="p-4 pb-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHTML(client.name)}</h3>
+                                    ${isMensal ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-sky-100 text-sky-800 border border-sky-200">
+                                            Plano Mensal
+                                        </span>
+                                    ` : `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-purple-100 text-purple-800 border border-purple-200">
+                                            Visita Avulsa
+                                        </span>
+                                    `}
+                                    <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-pool-50 text-pool-700 border border-pool-200">
+                                        ${escapeHTML(client.day || 'A definir')}
+                                    </span>
+                                    ${extrasCount > 0 ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                            +${extrasCount} Extra${extrasCount > 1 ? 's' : ''}
+                                        </span>
+                                    ` : ''}
+                                </div>
+
+                                <p class="text-xs font-medium text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-bold text-slate-800">${priceFormatted}${dueDayText}</span>
+                                    <span class="text-slate-300">|</span>
+                                    <span>${escapeHTML(client.phone)}</span>
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                ${isMensal ? `
+                                    <button 
+                                        type="button"
+                                        data-action="open-extra-modal"
+                                        data-id="${safeId}"
+                                        title="Agendar visita extra para este mensalista"
+                                        class="px-2 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold flex items-center gap-1 transition active:scale-95"
+                                    >
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                        <span>+ Extra</span>
+                                    </button>
+                                ` : ''}
+
+                                <button 
+                                    type="button"
+                                    data-action="toggle-payment"
+                                    data-id="${safeId}"
+                                    title="Alternar status de pagamento"
+                                    class="px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition active:scale-95 ${
+                                        paid 
+                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' 
+                                        : 'bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100'
+                                    }"
+                                >
+                                    <span>${paid ? 'Pago' : 'Pendente'}</span>
+                                </button>
+
+                                <button 
+                                    type="button"
+                                    data-action="edit-client"
+                                    data-id="${safeId}"
+                                    title="Editar cliente"
+                                    class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
+                                >
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Endereço + Waze e Google Maps -->
+                        <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200/90 space-y-2.5">
+                            <div class="flex items-start gap-2 min-w-0">
+                                <svg class="w-4 h-4 text-rose-500 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <p class="text-xs font-bold text-slate-900 leading-snug">${escapeHTML(fullAddress)}</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <a 
+                                    href="${wazeUrl}" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    class="py-2.5 px-3 bg-sky-500 hover:bg-sky-600 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition"
+                                >
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                                    <span>Waze</span>
+                                </a>
+                                <a 
+                                    href="${mapsUrl}" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    class="py-2.5 px-3 bg-white hover:bg-blue-50 active:scale-98 text-blue-700 border border-slate-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition"
+                                >
+                                    <svg class="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                                    <span>Maps</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        ${client.notes ? `
+                        <div class="mt-2.5 px-3 py-2 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-start gap-2">
+                            <svg class="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+                            <p class="text-xs text-slate-800 leading-relaxed">${escapeHTML(client.notes)}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2.5">
+                        <button 
+                            type="button"
+                            data-action="toggle-complete"
+                            data-id="${safeId}"
+                            title="${completed ? 'Clique para reabrir visita' : 'Marcar limpeza como concluída'}"
+                            class="flex-1 py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-98 border ${
+                                completed 
+                                ? 'bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200' 
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+                            }"
+                        >
+                            <svg class="w-4 h-4 ${completed ? 'text-emerald-700' : 'text-slate-400'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>${completed ? `Concluído (${lastVisit ? escapeHTML(lastVisit.slice(0, 5)) : 'OK'})` : 'Concluir Limpeza'}</span>
+                        </button>
+
+                        <button 
+                            type="button"
+                            data-action="open-whatsapp"
+                            data-id="${safeId}"
+                            class="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/20 transition"
+                        >
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            <span>WhatsApp</span>
+                        </button>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        async function toggleComplete(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+
+            const newCompleted = !isClientCompleted(client);
+            const todayFormatted = new Date().toLocaleDateString('pt-BR');
+            const currentVisits = getClientTotalVisits(client);
+            const updatedVisits = newCompleted ? currentVisits + 1 : Math.max(0, currentVisits - 1);
+
+            const payload = {
+                completed: newCompleted,
+                cleanedThisWeek: newCompleted,
+                totalVisits: updatedVisits,
+                visitCount: updatedVisits
+            };
+
+            if (newCompleted) {
+                payload.lastVisitDate = todayFormatted;
+                payload.lastVisit = todayFormatted;
+            }
+
+            try {
+                await updateDoc(doc(db, 'clientes', id), payload);
+                if (newCompleted) {
+                    const isAvulsa = !isClientMensal(client);
+                    showToast(isAvulsa
+                        ? 'Visita avulsa concluída! Ao resetar a semana ela sairá da rota.'
+                        : 'Limpeza concluída!'
+                    );
+                    openWhatsAppModal(id, 'concluido');
+                } else {
+                    showToast('Visita reaberta para pendente.');
+                }
+            } catch (err) {
+                showToast('Erro ao atualizar visita.', 'error');
+            }
+        }
+
+        async function togglePaymentStatus(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+
+            const newPaid = !isClientPaid(client);
+            try {
+                await updateDoc(doc(db, 'clientes', id), {
+                    paid: newPaid,
+                    payment: newPaid ? 'Pago' : 'Pendente'
+                });
+                showToast(newPaid ? 'Pagamento marcado como Pago!' : 'Status alterado para Pendente.');
+            } catch (err) {
+                showToast('Erro ao atualizar pagamento.', 'error');
+            }
+        }
+
+        function resetWeek() {
+            const routeClients = clients.filter(isClientActiveInWeek);
+            const completedMensalCount = routeClients.filter(c => isClientMensal(c) && isClientCompleted(c)).length;
+            const completedAvulsaCount = routeClients.filter(c => !isClientMensal(c) && isClientCompleted(c)).length;
+            const completedExtrasCount = clients.reduce(
+                (sum, c) => sum + getClientExtraVisits(c).filter(e => normalizeExtraVisit(e).completed).length,
+                0
+            );
+
+            if (completedMensalCount === 0 && completedAvulsaCount === 0 && completedExtrasCount === 0) {
+                showToast('Nenhuma limpeza concluída nesta semana para resetar.');
+                return;
+            }
+
+            document.getElementById('confirm-title').textContent = 'Resetar semana de atendimentos?';
+            document.getElementById('confirm-desc').textContent = 
+                `• ${completedMensalCount} cliente(s) de Plano Mensal voltarão para Pendente.\n` +
+                `• ${completedAvulsaCount} Visita(s) Avulsa(s) concluída(s) sairão da rota (cadastro mantido).\n` +
+                `• ${completedExtrasCount} Visita(s) Extra(s) concluída(s) sairão da rota ativa.`;
+            
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.textContent = 'Sim, resetar semana';
+            yesBtn.onclick = async () => {
+                closeModal('confirm-modal');
+                try {
+                    const batch = writeBatch(db);
+                    clients.forEach(c => {
+                        const extras = getClientExtraVisits(c).map(normalizeExtraVisit);
+                        const hasCompletedExtras = extras.some(e => e.completed);
+                        const activeInRoute = isClientActiveInWeek(c);
+                        const mainCompleted = activeInRoute && isClientCompleted(c);
+
+                        if (!mainCompleted && !hasCompletedExtras) return;
+
+                        const updates = {};
+                        if (mainCompleted) {
+                            if (isClientMensal(c)) {
+                                updates.completed = false;
+                                updates.cleanedThisWeek = false;
+                            } else {
+                                updates.completed = false;
+                                updates.cleanedThisWeek = false;
+                                updates.activeInRoute = false;
+                                updates.activeInWeek = false;
+                            }
+                        }
+
+                        if (hasCompletedExtras) {
+                            updates.extraVisits = extras.filter(e => !e.completed);
+                        }
+
+                        batch.update(doc(db, 'clientes', c.id), updates);
+                    });
+                    await batch.commit();
+                    showToast('Semana resetada com sucesso!');
+                } catch (err) {
+                    showToast('Erro ao resetar semana.', 'error');
+                }
+            };
+
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        // ---------------------------------------------------------------------
+        // 7B. VISITAS EXTRAS PARA MENSALISTAS
+        // ---------------------------------------------------------------------
+        function openExtraVisitModal(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            document.getElementById('extra-visit-form').reset();
+            document.getElementById('extra-client-id').value = client.id;
+            document.getElementById('extra-client-name').textContent = client.name;
+            document.getElementById('extra-price').value = '0';
+            document.getElementById('extra-paid').checked = false;
+
+            const today = getTodayDayName();
+            if (today !== 'Domingo') {
+                document.getElementById('extra-day').value = today;
+            } else if (selectedDay !== 'Todos') {
+                document.getElementById('extra-day').value = selectedDay;
+            } else {
+                document.getElementById('extra-day').value = client.day || 'Segunda';
+            }
+
+            document.getElementById('extra-visit-modal').classList.remove('hidden');
+        }
+
+        async function saveExtraVisit(e) {
+            e.preventDefault();
+            const clientId = document.getElementById('extra-client-id').value;
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            const day = document.getElementById('extra-day').value;
+            const reason = document.getElementById('extra-reason').value.trim();
+            const value = parseFloat(document.getElementById('extra-price').value) || 0;
+            const paid = document.getElementById('extra-paid').checked;
+
+            const newExtra = {
+                id: 'ext_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                day,
+                reason,
+                value,
+                completed: false,
+                paid,
+                createdAt: new Date().toLocaleDateString('pt-BR')
+            };
+
+            const currentExtras = getClientExtraVisits(client).map(normalizeExtraVisit);
+            closeModal('extra-visit-modal');
+
+            try {
+                await updateDoc(doc(db, 'clientes', clientId), {
+                    extraVisits: [...currentExtras, newExtra]
+                });
+                showToast(`Visita extra agendada para ${day}!`);
+            } catch (err) {
+                showToast('Erro ao agendar visita extra.', 'error');
+            }
+        }
+
+        async function toggleExtraComplete(clientId, extraId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            const extras = getClientExtraVisits(client).map(normalizeExtraVisit);
+            const target = extras.find(e => e.id === extraId);
+            if (!target) return;
+
+            const newCompleted = !target.completed;
+            const todayFormatted = new Date().toLocaleDateString('pt-BR');
+            const currentVisits = getClientTotalVisits(client);
+            const updatedVisits = newCompleted ? currentVisits + 1 : Math.max(0, currentVisits - 1);
+
+            const updatedExtras = extras.map(e =>
+                e.id === extraId ? { ...e, completed: newCompleted } : e
+            );
+
+            const payload = {
+                extraVisits: updatedExtras,
+                totalVisits: updatedVisits,
+                visitCount: updatedVisits
+            };
+
+            if (newCompleted) {
+                payload.lastVisitDate = todayFormatted;
+                payload.lastVisit = todayFormatted;
+            }
+
+            try {
+                await updateDoc(doc(db, 'clientes', clientId), payload);
+                if (newCompleted) {
+                    showToast('Visita extra concluída!');
+                    openWhatsAppModal(clientId, 'concluido_extra', { ...target, completed: true });
+                } else {
+                    showToast('Conclusão da visita extra desfeita.');
+                }
+            } catch (err) {
+                showToast('Erro ao atualizar visita extra.', 'error');
+            }
+        }
+
+        async function toggleExtraPayment(clientId, extraId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            const extras = getClientExtraVisits(client).map(normalizeExtraVisit);
+            const target = extras.find(e => e.id === extraId);
+            if (!target) return;
+
+            const newPaid = !target.paid;
+            const updatedExtras = extras.map(e =>
+                e.id === extraId ? { ...e, paid: newPaid } : e
+            );
+
+            try {
+                await updateDoc(doc(db, 'clientes', clientId), {
+                    extraVisits: updatedExtras
+                });
+                showToast(newPaid ? 'Visita extra marcada como Paga!' : 'Visita extra marcada como Pendente.');
+            } catch (err) {
+                showToast('Erro ao atualizar pagamento da visita extra.', 'error');
+            }
+        }
+
+        function confirmDeleteExtraVisit(clientId, extraId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+            const target = getClientExtraVisits(client).map(normalizeExtraVisit).find(e => e.id === extraId);
+            if (!target) return;
+
+            document.getElementById('confirm-title').textContent = 'Remover visita extra?';
+            document.getElementById('confirm-desc').textContent = `Remover "${target.reason}" (${target.day}) de ${client.name}?`;
+
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.textContent = 'Sim, remover';
+            yesBtn.onclick = async () => {
+                closeModal('confirm-modal');
+                const updatedExtras = getClientExtraVisits(client).map(normalizeExtraVisit).filter(e => e.id !== extraId);
+                try {
+                    await updateDoc(doc(db, 'clientes', clientId), {
+                        extraVisits: updatedExtras
+                    });
+                    showToast('Visita extra removida.');
+                } catch (err) {
+                    showToast('Erro ao remover visita extra.', 'error');
+                }
+            };
+
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        // ---------------------------------------------------------------------
+        // 8. ABA 2: BASE DE CLIENTES
+        // ---------------------------------------------------------------------
+        function renderPlanTypeFilters() {
+            const container = document.getElementById('plan-type-filters');
+            if (!container) return;
+
+            container.innerHTML = PLAN_FILTER_LIST.map(item => {
+                const isSelected = selectedPlanFilter === item.id;
+                const count = item.id === 'Todos'
+                    ? clients.length
+                    : item.id === 'mensal'
+                        ? clients.filter(isClientMensal).length
+                        : clients.filter(c => !isClientMensal(c)).length;
+
+                return `
+                    <button 
+                        type="button"
+                        data-plan-filter="${escapeHTML(item.id)}"
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap border ${
+                            isSelected 
+                            ? 'bg-pool-600 text-white border-pool-600 shadow-sm' 
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }"
+                    >
+                        <span>${escapeHTML(item.label)}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md ${
+                            isSelected ? 'bg-pool-700 text-pool-100' : 'bg-slate-100 text-slate-500'
+                        }">${count}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectPlanFilter(type) {
+            selectedPlanFilter = type;
+            renderPlanTypeFilters();
+            renderBaseClients();
+        }
+
+        function renderBaseClients() {
+            const listEl = document.getElementById('base-clients-list');
+            const emptyEl = document.getElementById('base-empty-state');
+            const searchInput = document.getElementById('base-search-input');
+            const clearBtn = document.getElementById('clear-base-search');
+            if (!listEl || !searchInput) return;
+
+            const query = searchInput.value.trim().toLowerCase();
+            clearBtn.classList.toggle('hidden', query.length === 0);
+
+            const filtered = clients.filter(c => {
+                const isMensal = isClientMensal(c);
+                const fullAddr = getClientFullAddress(c).toLowerCase();
+                const matchPlan = selectedPlanFilter === 'Todos' ||
+                    (selectedPlanFilter === 'mensal' && isMensal) ||
+                    (selectedPlanFilter === 'avulsa' && !isMensal);
+                const matchQuery = !query ||
+                    (c.name || '').toLowerCase().includes(query) ||
+                    fullAddr.includes(query) ||
+                    (c.phone || '').toLowerCase().includes(query);
+                return matchPlan && matchQuery;
+            });
+
+            filtered.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+
+            document.getElementById('base-results-label').textContent = `${filtered.length} ${filtered.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            listEl.innerHTML = filtered.map(client => {
+                const isMensal = isClientMensal(client);
+                const activeNow = isClientActiveInWeek(client);
+                const fullAddress = getClientFullAddress(client);
+                const encodedAddress = encodeURIComponent(fullAddress);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
+                const priceFormatted = formatBRL(client.price);
+                const lastVisit = getClientLastVisit(client);
+                const totalVisits = getClientTotalVisits(client);
+                const safeId = escapeHTML(client.id);
+
+                return `
+                <article class="bg-white rounded-2xl border ${!isMensal && !activeNow ? 'border-slate-200' : 'border-pool-200/80'} shadow-sm overflow-hidden">
+                    <div class="p-4 pb-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHTML(client.name)}</h3>
+                                    ${isMensal ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-sky-100 text-sky-800 border border-sky-200">
+                                            Plano Mensal
+                                        </span>
+                                    ` : `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-purple-100 text-purple-800 border border-purple-200">
+                                            Visita Avulsa
+                                        </span>
+                                    `}
+                                    ${!isMensal && !activeNow ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">
+                                            Fora da rota atual
+                                        </span>
+                                    ` : ''}
+                                </div>
+
+                                <p class="text-xs font-medium text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-bold text-slate-800">${priceFormatted}</span>
+                                    <span class="text-slate-300">|</span>
+                                    <span>Dia fixo: <strong class="text-slate-700">${escapeHTML(client.day || 'A definir')}</strong></span>
+                                    <span class="text-slate-300">|</span>
+                                    <span>${escapeHTML(client.phone)}</span>
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button 
+                                    type="button"
+                                    data-action="edit-client"
+                                    data-id="${safeId}"
+                                    title="Editar cadastro"
+                                    class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
+                                >
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                </button>
+                                <button 
+                                    type="button"
+                                    data-action="delete-client"
+                                    data-id="${safeId}"
+                                    title="Excluir cliente"
+                                    class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition"
+                                >
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Histórico de visitas -->
+                        <div class="mt-2.5 flex items-center gap-3 text-[11px] font-semibold text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/70">
+                            <span>Última visita: <strong class="text-slate-900">${lastVisit ? escapeHTML(lastVisit) : 'Nenhuma ainda'}</strong></span>
+                            <span class="text-slate-300">•</span>
+                            <span>Total: <strong class="text-slate-900">${totalVisits} ${totalVisits === 1 ? 'visita' : 'visitas'}</strong></span>
+                        </div>
+
+                        <!-- Endereço + Waze e Google Maps -->
+                        <div class="mt-2.5 flex items-center justify-between gap-2 text-xs text-slate-700">
+                            <span class="truncate font-medium">${escapeHTML(fullAddress)}</span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-[11px]">Waze</a>
+                                <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px]">Maps</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                        <button 
+                            type="button"
+                            data-action="open-whatsapp"
+                            data-id="${safeId}"
+                            class="py-2.5 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                        >
+                            <span>WhatsApp</span>
+                        </button>
+
+                        ${isMensal ? `
+                            <button 
+                                type="button"
+                                data-action="open-extra-modal"
+                                data-id="${safeId}"
+                                class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs shadow-indigo-600/20 transition"
+                            >
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                <span>+ Visita Extra</span>
+                            </button>
+                        ` : ''}
+
+                        ${!isMensal && !activeNow ? `
+                            <button 
+                                type="button"
+                                data-action="open-reactivate-avulsa"
+                                data-id="${safeId}"
+                                class="flex-1 py-2.5 px-3 bg-purple-600 hover:bg-purple-700 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm shadow-purple-600/20 transition"
+                            >
+                                <span>+ Agendar Nova Visita Avulsa</span>
+                            </button>
+                        ` : `
+                            <button 
+                                type="button"
+                                data-action="go-to-route"
+                                data-id="${safeId}"
+                                class="flex-1 py-2.5 px-3 bg-white hover:bg-pool-50 text-pool-800 border border-pool-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                            >
+                                <span>Ver na Rota (${escapeHTML(client.day)})</span>
+                            </button>
+                        `}
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        function openReactivateAvulsaModal(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+
+            document.getElementById('reactivate-client-id').value = client.id;
+            document.getElementById('reactivate-client-name').textContent = client.name;
+            document.getElementById('reactivate-price').value = parseFloat(client.price) || 0;
+            document.getElementById('reactivate-paid').checked = false;
+
+            const today = getTodayDayName();
+            if (today !== 'Domingo') {
+                document.getElementById('reactivate-day').value = today;
+            } else {
+                document.getElementById('reactivate-day').value = client.day || 'Segunda';
+            }
+
+            document.getElementById('reactivate-avulsa-modal').classList.remove('hidden');
+        }
+
+        async function saveReactivateAvulsa(e) {
+            e.preventDefault();
+            const id = document.getElementById('reactivate-client-id').value;
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+
+            const day = document.getElementById('reactivate-day').value;
+            const price = parseFloat(document.getElementById('reactivate-price').value) || 0;
+            const paid = document.getElementById('reactivate-paid').checked;
+
+            closeModal('reactivate-avulsa-modal');
+
+            try {
+                await updateDoc(doc(db, 'clientes', id), {
+                    day,
+                    price,
+                    activeInRoute: true,
+                    activeInWeek: true,
+                    completed: false,
+                    cleanedThisWeek: false,
+                    paid,
+                    payment: paid ? 'Pago' : 'Pendente'
+                });
+                showToast(`Visita avulsa de ${client.name} agendada para ${day}!`);
+                selectedDay = day;
+                switchMainTab('rota');
+            } catch (err) {
+                showToast('Erro ao reativar visita avulsa.', 'error');
+            }
+        }
+
+        function goToClientInRoute(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+            selectedDay = client.day || 'Todos';
+            onlyPending = false;
+            const btn = document.getElementById('btn-filter-pending');
+            btn.classList.remove('bg-amber-50', 'border-amber-400', 'text-amber-800');
+            btn.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
+            switchMainTab('rota');
+        }
+
+        // ---------------------------------------------------------------------
+        // 9. ABA 3: FINANCEIRO (VALORES EM REAIS R$)
+        // ---------------------------------------------------------------------
+        function renderFinFilters() {
+            const container = document.getElementById('fin-status-filters');
+            if (!container) return;
+
+            const finEntries = getAllFinancialEntries();
+
+            container.innerHTML = FIN_FILTER_LIST.map(item => {
+                const isSelected = selectedFinFilter === item.id;
+                const count = item.id === 'Todos'
+                    ? finEntries.length
+                    : item.id === 'Pago'
+                        ? finEntries.filter(e => e.paid).length
+                        : finEntries.filter(e => !e.paid).length;
+
+                return `
+                    <button 
+                        type="button"
+                        data-fin-filter="${escapeHTML(item.id)}"
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap border ${
+                            isSelected 
+                            ? 'bg-pool-600 text-white border-pool-600 shadow-sm' 
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }"
+                    >
+                        <span>${escapeHTML(item.label)}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md ${
+                            isSelected ? 'bg-pool-700 text-pool-100' : 'bg-slate-100 text-slate-500'
+                        }">${count}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectFinFilter(status) {
+            selectedFinFilter = status;
+            renderFinFilters();
+            renderFinanceiro();
+        }
+
+        function renderFinanceiro() {
+            const listEl = document.getElementById('fin-clients-list');
+            const emptyEl = document.getElementById('fin-empty-state');
+            const searchInput = document.getElementById('fin-search-input');
+            const clearBtn = document.getElementById('clear-fin-search');
+            if (!listEl || !searchInput) return;
+
+            const allEntries = getAllFinancialEntries();
+
+            const totalExpected = allEntries.reduce((sum, e) => sum + e.value, 0);
+            const totalPaid = allEntries.filter(e => e.paid).reduce((sum, e) => sum + e.value, 0);
+            const totalPending = allEntries.filter(e => !e.paid).reduce((sum, e) => sum + e.value, 0);
+
+            document.getElementById('fin-total-expected').textContent = formatBRL(totalExpected);
+            document.getElementById('fin-total-paid').textContent = formatBRL(totalPaid);
+            document.getElementById('fin-total-pending').textContent = formatBRL(totalPending);
+
+            const query = searchInput.value.trim().toLowerCase();
+            clearBtn.classList.toggle('hidden', query.length === 0);
+
+            const filtered = allEntries.filter(entry => {
+                const c = entry.client;
+                const fullAddr = getClientFullAddress(c).toLowerCase();
+                const matchStatus = selectedFinFilter === 'Todos'
+                    || (selectedFinFilter === 'Pago' && entry.paid)
+                    || (selectedFinFilter === 'Pendente' && !entry.paid);
+                const reasonText = entry.extra ? entry.extra.reason.toLowerCase() : '';
+                const matchQuery = !query ||
+                    (c.name || '').toLowerCase().includes(query) ||
+                    fullAddr.includes(query) ||
+                    reasonText.includes(query);
+                return matchStatus && matchQuery;
+            });
+
+            filtered.sort((a, b) => {
+                const aPaid = a.paid ? 1 : 0;
+                const bPaid = b.paid ? 1 : 0;
+                if (aPaid !== bPaid) return aPaid - bPaid;
+                return (a.client.name || '').localeCompare(b.client.name || '', 'pt-BR');
+            });
+
+            document.getElementById('fin-results-label').textContent = `${filtered.length} ${filtered.length === 1 ? 'lançamento' : 'lançamentos'}`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            listEl.innerHTML = filtered.map(entry => {
+                const client = entry.client;
+                const paid = entry.paid;
+                const priceFormatted = formatBRL(entry.value);
+                const safeId = escapeHTML(client.id);
+
+                if (entry.kind === 'extra') {
+                    const extra = entry.extra;
+                    const safeExtraId = escapeHTML(extra.id);
+
+                    return `
+                    <article class="bg-white rounded-2xl border ${paid ? 'border-emerald-200' : 'border-indigo-300'} border-l-4 ${paid ? 'border-l-emerald-500' : 'border-l-indigo-600'} shadow-sm overflow-hidden">
+                        <div class="p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHTML(client.name)}</h3>
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                            Visita Extra
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
+                                            ${escapeHTML(extra.day)}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs font-semibold text-indigo-900 mt-1">
+                                        ${escapeHTML(extra.reason)}
+                                    </p>
+                                </div>
+
+                                <div class="text-right shrink-0">
+                                    <p class="text-base sm:text-lg font-extrabold ${paid ? 'text-emerald-700' : 'text-indigo-700'}">${priceFormatted}</p>
+                                    <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
+                                        paid 
+                                        ? 'bg-emerald-100 text-emerald-800' 
+                                        : 'bg-amber-100 text-amber-900'
+                                    }">
+                                        ${paid ? 'Pago' : 'Pendente'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-4 py-2.5 bg-indigo-50/40 border-t border-indigo-100 flex items-center gap-2">
+                            <button 
+                                type="button"
+                                data-action="toggle-extra-payment"
+                                data-id="${safeId}"
+                                data-extra-id="${safeExtraId}"
+                                class="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-98 ${
+                                    paid 
+                                    ? 'bg-white hover:bg-amber-50 text-slate-700 border border-slate-300' 
+                                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20'
+                                }"
+                            >
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>${paid ? 'Estornar' : 'Marcar Pago'}</span>
+                            </button>
+
+                            <button 
+                                type="button"
+                                data-action="open-whatsapp-extra-cobranca"
+                                data-id="${safeId}"
+                                data-extra-id="${safeExtraId}"
+                                class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                            >
+                                <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                <span>Cobrar</span>
+                            </button>
+                        </div>
+                    </article>
+                    `;
+                }
+
+                const isMensal = isClientMensal(client);
+
+                return `
+                <article class="bg-white rounded-2xl border ${paid ? 'border-emerald-200' : 'border-amber-300'} shadow-sm overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHTML(client.name)}</h3>
+                                    ${isMensal ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-sky-100 text-sky-800 border border-sky-200">
+                                            Plano Mensal
+                                        </span>
+                                    ` : `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-purple-100 text-purple-800 border border-purple-200">
+                                            Visita Avulsa
+                                        </span>
+                                    `}
+                                    ${isMensal && client.dueDay ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
+                                            Venc. dia ${escapeHTML(client.dueDay)}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <p class="text-xs font-medium text-slate-500 mt-1 truncate">
+                                    ${escapeHTML(getClientFullAddress(client))}
+                                </p>
+                            </div>
+
+                            <div class="text-right shrink-0">
+                                <p class="text-base sm:text-lg font-extrabold ${paid ? 'text-emerald-700' : 'text-amber-700'}">${priceFormatted}</p>
+                                <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
+                                    paid 
+                                    ? 'bg-emerald-100 text-emerald-800' 
+                                    : 'bg-amber-100 text-amber-900'
+                                }">
+                                    ${paid ? 'Pago' : 'Pendente'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+                        <button 
+                            type="button"
+                            data-action="toggle-payment"
+                            data-id="${safeId}"
+                            class="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-98 ${
+                                paid 
+                                ? 'bg-white hover:bg-amber-50 text-slate-700 border border-slate-300' 
+                                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20'
+                            }"
+                        >
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>${paid ? 'Estornar' : 'Marcar Pago'}</span>
+                        </button>
+
+                        <button 
+                            type="button"
+                            data-action="open-whatsapp-cobranca"
+                            data-id="${safeId}"
+                            class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                        >
+                            <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            <span>Cobrar</span>
+                        </button>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        function resetMonthPayments() {
+            const paidMonthlyClients = clients.filter(c => isClientMensal(c) && isClientPaid(c));
+            const paidCompletedExtrasTotal = clients.reduce(
+                (sum, c) => sum + getClientExtraVisits(c).map(normalizeExtraVisit).filter(e => e.paid && e.completed).length,
+                0
+            );
+
+            if (paidMonthlyClients.length === 0 && paidCompletedExtrasTotal === 0) {
+                showToast('Nenhum pagamento mensal ou extra concluído/pago para resetar.');
+                return;
+            }
+
+            document.getElementById('confirm-title').textContent = 'Virar Mês (Resetar Pagamentos)?';
+            document.getElementById('confirm-desc').textContent = 
+                `• ${paidMonthlyClients.length} cliente(s) de Plano Mensal voltarão para "Pendente".\n` +
+                `• ${paidCompletedExtrasTotal} visita(s) extra(s) já concluída(s) e paga(s) serão arquivadas.`;
+            
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.textContent = 'Sim, virar mês';
+            yesBtn.onclick = async () => {
+                closeModal('confirm-modal');
+                try {
+                    const batch = writeBatch(db);
+                    clients.forEach(c => {
+                        const isMonthlyPaid = isClientMensal(c) && isClientPaid(c);
+                        const extras = getClientExtraVisits(c).map(normalizeExtraVisit);
+                        const hasPaidCompletedExtras = extras.some(e => e.paid && e.completed);
+
+                        if (!isMonthlyPaid && !hasPaidCompletedExtras) return;
+
+                        const updates = {};
+                        if (isMonthlyPaid) {
+                            updates.paid = false;
+                            updates.payment = 'Pendente';
+                        }
+                        if (hasPaidCompletedExtras) {
+                            updates.extraVisits = extras.filter(e => !(e.paid && e.completed));
+                        }
+                        batch.update(doc(db, 'clientes', c.id), updates);
+                    });
+                    await batch.commit();
+                    showToast('Mês virado com sucesso!');
+                } catch (err) {
+                    showToast('Erro ao virar mês.', 'error');
+                }
+            };
+
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        // ---------------------------------------------------------------------
+        // 10. MODAL WHATSAPP
+        // ---------------------------------------------------------------------
+        function openWhatsAppModal(id, defaultTemplate = 'aviso', extraVisit = null) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+
+            currentWaContext = { client, extraVisit };
+            const subtitle = extraVisit
+                ? `${client.name} • Extra (${extraVisit.reason})`
+                : `${client.name} • ${client.phone}`;
+            document.getElementById('wa-client-name').textContent = subtitle;
+            setWaTemplate(defaultTemplate);
+            document.getElementById('whatsapp-modal').classList.remove('hidden');
+        }
+
+        function setWaTemplate(type) {
+            if (!currentWaContext || !currentWaContext.client) return;
+            const { client, extraVisit } = currentWaContext;
+
+            if (type === 'vazio') {
+                document.getElementById('wa-message-text').value = '';
+                return;
+            }
+
+            const firstName = (client.name || 'Cliente').split(' ')[0];
+
+            if (type === 'concluido_extra' && extraVisit) {
+                document.getElementById('wa-message-text').value =
+                    `Olá ${firstName}! A visita extra (${extraVisit.reason}) foi concluída com sucesso! Tudo certo com a piscina. Qualquer dúvida estou à disposição! 🏊‍♂️✨ - *Piscinas Mattei*`;
+                return;
+            }
+
+            if (type === 'cobranca_extra' && extraVisit) {
+                const extraVal = formatBRL(extraVisit.value);
+                document.getElementById('wa-message-text').value =
+                    `Olá ${firstName}! Passando para lembrar do pagamento referente à visita extra (${extraVisit.reason}) no valor de *${extraVal}*. Obrigado pela parceria! - *Piscinas Mattei*`;
+                return;
+            }
+
+            const priceFormatted = extraVisit ? formatBRL(extraVisit.value) : formatBRL(client.price);
+            const rawTpl = waTemplates[type] || DEFAULT_TEMPLATES[type] || '';
+
+            document.getElementById('wa-message-text').value = rawTpl
+                .replace(/\{nome\}/gi, firstName)
+                .replace(/\{valor\}/gi, priceFormatted);
+        }
+
+        function sendWhatsAppNow() {
+            if (!currentWaContext || !currentWaContext.client) return;
+            const client = currentWaContext.client;
+            let cleanPhone = (client.phone || '').replace(/\D/g, '');
+            if (cleanPhone.length > 0 && cleanPhone.length <= 11) {
+                cleanPhone = '55' + cleanPhone;
+            }
+            const rawText = document.getElementById('wa-message-text').value.trim();
+            const waUrl = rawText 
+                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`
+                : `https://wa.me/${cleanPhone}`;
+            
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+            closeModal('whatsapp-modal');
+            currentWaContext = null;
+        }
+
+        // ---------------------------------------------------------------------
+        // 11. MODAL DE CADASTRO / EDIÇÃO E EXCLUSÃO DE CLIENTE
+        // ---------------------------------------------------------------------
+        function selectPlanType(type) {
+            const normalized = type === 'avulsa' ? 'avulsa' : 'mensal';
+            document.getElementById('client-plan-type').value = normalized;
+
+            const btnMensal = document.getElementById('btn-plan-mensal');
+            const btnAvulsa = document.getElementById('btn-plan-avulsa');
+            const dueWrapper = document.getElementById('due-day-wrapper');
+
+            if (normalized === 'mensal') {
+                btnMensal.className = 'p-3 rounded-xl border-2 border-pool-600 bg-pool-50 text-pool-900 text-left transition flex items-start gap-2.5';
+                btnAvulsa.className = 'p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-left transition flex items-start gap-2.5';
+                dueWrapper.classList.remove('hidden');
+            } else {
+                btnAvulsa.className = 'p-3 rounded-xl border-2 border-purple-600 bg-purple-50 text-purple-950 text-left transition flex items-start gap-2.5';
+                btnMensal.className = 'p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-left transition flex items-start gap-2.5';
+                dueWrapper.classList.add('hidden');
+            }
+        }
+
+        function openClientModal(id = null) {
+            const form = document.getElementById('client-form');
+            const deleteBtn = document.getElementById('btn-delete-client');
+            form.reset();
+
+            if (id) {
+                const client = clients.find(c => c.id === id);
+                if (!client) return;
+
+                document.getElementById('modal-title').textContent = 'Editar Cliente';
+                document.getElementById('client-id').value = client.id;
+                document.getElementById('client-name').value = client.name || '';
+                document.getElementById('client-phone').value = client.phone || '';
+                document.getElementById('client-address').value = getClientFullAddress(client);
+                document.getElementById('client-day').value = client.day || 'Segunda';
+                document.getElementById('client-price').value = client.price || '';
+                document.getElementById('client-due-day').value = client.dueDay || '';
+                document.getElementById('client-notes').value = client.notes || '';
+                document.getElementById('client-paid').checked = isClientPaid(client);
+                selectPlanType(isClientMensal(client) ? 'mensal' : 'avulsa');
+                deleteBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('modal-title').textContent = 'Novo Cliente';
+                document.getElementById('client-id').value = '';
+                document.getElementById('client-paid').checked = false;
+                selectPlanType('mensal');
+                if (selectedDay !== 'Todos') {
+                    document.getElementById('client-day').value = selectedDay;
+                }
+                deleteBtn.classList.add('hidden');
+            }
+
+            document.getElementById('client-modal').classList.remove('hidden');
+        }
+
+        async function saveClient(e) {
+            e.preventDefault();
+            const id = document.getElementById('client-id').value;
+            const planType = document.getElementById('client-plan-type').value === 'avulsa' ? 'avulsa' : 'mensal';
+            const paid = document.getElementById('client-paid').checked;
+
+            const clientData = {
+                planType,
+                name: document.getElementById('client-name').value.trim(),
+                phone: document.getElementById('client-phone').value.trim(),
+                address: document.getElementById('client-address').value.trim(),
+                day: document.getElementById('client-day').value,
+                price: parseFloat(document.getElementById('client-price').value) || 0,
+                dueDay: planType === 'mensal' ? (document.getElementById('client-due-day').value.trim() || '') : '',
+                notes: document.getElementById('client-notes').value.trim(),
+                paid,
+                payment: paid ? 'Pago' : 'Pendente',
+                activeInRoute: true,
+                activeInWeek: true
+            };
+
+            closeModal('client-modal');
+
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'clientes', id), clientData);
+                    showToast('Cadastro atualizado na nuvem!');
+                } else {
+                    clientData.completed = false;
+                    clientData.cleanedThisWeek = false;
+                    clientData.lastVisitDate = '';
+                    clientData.lastVisit = '';
+                    clientData.totalVisits = 0;
+                    clientData.visitCount = 0;
+                    clientData.extraVisits = [];
+                    clientData.createdAt = Date.now();
+                    await addDoc(clientesCollection, clientData);
+                    showToast('Novo cliente cadastrado na nuvem!');
+                }
+            } catch (err) {
+                showToast('Erro ao salvar cliente.', 'error');
+            }
+        }
+
+        function confirmDeleteClient(directId = null) {
+            const id = directId || document.getElementById('client-id').value;
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+
+            document.getElementById('confirm-title').textContent = 'Excluir cliente?';
+            document.getElementById('confirm-desc').textContent = `Tem certeza que deseja remover "${client.name}" permanentemente?`;
+            
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.textContent = 'Sim, excluir';
+            yesBtn.onclick = async () => {
+                closeModal('confirm-modal');
+                closeModal('client-modal');
+                try {
+                    await deleteDoc(doc(db, 'clientes', id));
+                    showToast('Cliente removido da nuvem.');
+                } catch (err) {
+                    showToast('Erro ao excluir cliente.', 'error');
+                }
+            };
+
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        // ---------------------------------------------------------------------
+        // 12. CONFIGURAÇÕES, TEMPLATES WHATSAPP E BACKUP JSON
+        // ---------------------------------------------------------------------
+        function openBackupModal() {
+            document.getElementById('tpl-aviso').value = waTemplates.aviso;
+            document.getElementById('tpl-concluido').value = waTemplates.concluido;
+            document.getElementById('tpl-cobranca').value = waTemplates.cobranca;
+            document.getElementById('backup-modal').classList.remove('hidden');
+        }
+
+        async function saveTemplatesToCloud() {
+            const newTemplates = {
+                aviso: document.getElementById('tpl-aviso').value.trim() || DEFAULT_TEMPLATES.aviso,
+                concluido: document.getElementById('tpl-concluido').value.trim() || DEFAULT_TEMPLATES.concluido,
+                cobranca: document.getElementById('tpl-cobranca').value.trim() || DEFAULT_TEMPLATES.cobranca
+            };
+
+            try {
+                await setDoc(whatsappConfigDocRef, newTemplates);
+                waTemplates = newTemplates;
+                showToast('Mensagens padrão salvas na nuvem!');
+            } catch (err) {
+                showToast('Erro ao salvar mensagens.', 'error');
+            }
+        }
+
+        function exportBackupJSON() {
+            const payload = {
+                exportedAt: new Date().toISOString(),
+                app: 'Piscinas Mattei',
+                whatsappTemplates: waTemplates,
+                clients: clients.map(({ id, ...rest }) => rest)
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const dateStr = new Date().toISOString().slice(0, 10);
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `backup-piscinas-mattei-${dateStr}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Backup JSON baixado!');
+        }
+
+        function importBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    const importedList = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.clients) ? parsed.clients : null);
+
+                    if (importedList) {
+                        const batch = writeBatch(db);
+                        importedList.forEach(item => {
+                            const { id, ...cleanData } = item;
+                            const newDocRef = doc(clientesCollection);
+                            batch.set(newDocRef, cleanData);
+                        });
+                        await batch.commit();
+                        closeModal('backup-modal');
+                        showToast(`${importedList.length} clientes importados para a nuvem!`);
+                    } else {
+                        showToast('Arquivo de backup inválido.', 'error');
+                    }
+                } catch (err) {
+                    showToast('Erro ao ler o arquivo JSON.', 'error');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // ---------------------------------------------------------------------
+        // 13. UTILITÁRIOS DE UI E EVENT LISTENERS GLOBAIS
+        // ---------------------------------------------------------------------
+        function closeModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.classList.add('hidden');
+        }
+
+        let toastTimer = null;
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const dot = document.getElementById('toast-dot');
+            document.getElementById('toast-msg').textContent = msg;
+            dot.className = type === 'error'
+                ? 'w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0'
+                : 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0';
+
+            toast.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3400);
+        }
+
+        function maskPhone(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) {
+                input.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+            } else if (v.length > 2) {
+                input.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+            } else if (v.length > 0) {
+                input.value = `(${v}`;
+            }
+        }
+
+        // Eventos do cabeçalho e navegação
+        document.getElementById('btn-install-pwa').addEventListener('click', handleInstallClick);
+        document.getElementById('btn-open-settings').addEventListener('click', openBackupModal);
+        document.getElementById('btn-logout').addEventListener('click', confirmLogout);
+        document.getElementById('btn-settings-logout').addEventListener('click', confirmLogout);
+
+        document.getElementById('tab-btn-rota').addEventListener('click', () => switchMainTab('rota'));
+        document.getElementById('tab-btn-clientes').addEventListener('click', () => switchMainTab('clientes'));
+        document.getElementById('tab-btn-financeiro').addEventListener('click', () => switchMainTab('financeiro'));
+
+        // Eventos Aba 1 (Rota)
+        document.getElementById('search-input').addEventListener('input', renderClients);
+        document.getElementById('clear-search').addEventListener('click', () => {
+            document.getElementById('search-input').value = '';
+            renderClients();
+        });
+        document.getElementById('btn-filter-pending').addEventListener('click', togglePendingFilter);
+        document.getElementById('btn-reset-week').addEventListener('click', resetWeek);
+        document.getElementById('btn-filter-today').addEventListener('click', filterToday);
+        document.getElementById('btn-empty-clear-filters').addEventListener('click', clearAllFilters);
+        document.getElementById('btn-empty-go-base').addEventListener('click', () => switchMainTab('clientes'));
+
+        document.getElementById('day-filters').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-day]');
+            if (btn) selectDayFilter(btn.getAttribute('data-day'));
+        });
+
+        // Eventos Aba 2 (Clientes)
+        document.getElementById('base-search-input').addEventListener('input', renderBaseClients);
+        document.getElementById('clear-base-search').addEventListener('click', () => {
+            document.getElementById('base-search-input').value = '';
+            renderBaseClients();
+        });
+        document.getElementById('plan-type-filters').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-plan-filter]');
+            if (btn) selectPlanFilter(btn.getAttribute('data-plan-filter'));
+        });
+
+        // Eventos Aba 3 (Financeiro)
+        document.getElementById('fin-search-input').addEventListener('input', renderFinanceiro);
+        document.getElementById('clear-fin-search').addEventListener('click', () => {
+            document.getElementById('fin-search-input').value = '';
+            renderFinanceiro();
+        });
+        document.getElementById('fin-status-filters').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-fin-filter]');
+            if (btn) selectFinFilter(btn.getAttribute('data-fin-filter'));
+        });
+        document.getElementById('btn-reset-month-payments').addEventListener('click', resetMonthPayments);
+
+        // Eventos Modais
+        document.getElementById('btn-fab-new-client').addEventListener('click', () => openClientModal());
+        document.getElementById('client-form').addEventListener('submit', saveClient);
+        document.getElementById('btn-plan-mensal').addEventListener('click', () => selectPlanType('mensal'));
+        document.getElementById('btn-plan-avulsa').addEventListener('click', () => selectPlanType('avulsa'));
+        document.getElementById('client-phone').addEventListener('input', (e) => maskPhone(e.target));
+        document.getElementById('btn-delete-client').addEventListener('click', () => confirmDeleteClient());
+
+        document.getElementById('extra-visit-form').addEventListener('submit', saveExtraVisit);
+        document.querySelectorAll('[data-extra-preset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('extra-reason').value = btn.getAttribute('data-extra-preset');
+            });
+        });
+
+        document.getElementById('reactivate-avulsa-form').addEventListener('submit', saveReactivateAvulsa);
+
+        document.getElementById('btn-send-whatsapp-now').addEventListener('click', sendWhatsAppNow);
+        document.getElementById('btn-save-templates').addEventListener('click', saveTemplatesToCloud);
+        document.getElementById('btn-export-json').addEventListener('click', exportBackupJSON);
+        document.getElementById('import-json-input').addEventListener('change', importBackupJSON);
+
+        document.querySelectorAll('[data-wa-tpl]').forEach(btn => {
+            btn.addEventListener('click', () => setWaTemplate(btn.getAttribute('data-wa-tpl')));
+        });
+
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
+        });
+
+        // Fechar modal ao clicar no backdrop escuro
+        ['client-modal', 'extra-visit-modal', 'reactivate-avulsa-modal', 'whatsapp-modal', 'backup-modal', 'confirm-modal'].forEach(modalId => {
+            const modalEl = document.getElementById(modalId);
+            if (modalEl) {
+                modalEl.addEventListener('click', (e) => {
+                    if (e.target === modalEl) closeModal(modalId);
+                });
+            }
+        });
+
+        // Event Delegation unificado para todos os cards (Rota, Clientes e Financeiro)
+        function handleCardActions(e) {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const id = btn.getAttribute('data-id');
+            const extraId = btn.getAttribute('data-extra-id');
+            if (!id) return;
+
+            if (action === 'toggle-payment') togglePaymentStatus(id);
+            else if (action === 'edit-client') openClientModal(id);
+            else if (action === 'delete-client') confirmDeleteClient(id);
+            else if (action === 'toggle-complete') toggleComplete(id);
+            else if (action === 'open-whatsapp') openWhatsAppModal(id, 'aviso');
+            else if (action === 'open-whatsapp-cobranca') openWhatsAppModal(id, 'cobranca');
+            else if (action === 'open-reactivate-avulsa') openReactivateAvulsaModal(id);
+            else if (action === 'go-to-route') goToClientInRoute(id);
+            else if (action === 'open-extra-modal') openExtraVisitModal(id);
+            else if (action === 'toggle-extra-complete' && extraId) toggleExtraComplete(id, extraId);
+            else if (action === 'toggle-extra-payment' && extraId) toggleExtraPayment(id, extraId);
+            else if (action === 'delete-extra-visit' && extraId) confirmDeleteExtraVisit(id, extraId);
+            else if (action === 'open-whatsapp-extra' && extraId) {
+                const c = clients.find(item => item.id === id);
+                const ex = c ? getClientExtraVisits(c).map(normalizeExtraVisit).find(item => item.id === extraId) : null;
+                openWhatsAppModal(id, 'aviso', ex);
+            }
+            else if (action === 'open-whatsapp-extra-cobranca' && extraId) {
+                const c = clients.find(item => item.id === id);
+                const ex = c ? getClientExtraVisits(c).map(normalizeExtraVisit).find(item => item.id === extraId) : null;
+                openWhatsAppModal(id, 'cobranca_extra', ex);
+            }
+        }
+
+        document.getElementById('clients-list').addEventListener('click', handleCardActions);
+        document.getElementById('base-clients-list').addEventListener('click', handleCardActions);
+        document.getElementById('fin-clients-list').addEventListener('click', handleCardActions);
+    </script>
+</body>
+</html>
