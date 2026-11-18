@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,19 +7,16 @@
     <meta name="theme-color" content="#0284c7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="Gestão de clientes, rotas e manutenções de piscinas - Piscinas Mattei">
+    <meta name="description" content="Gestão de clientes, rotas e financeiro de piscinas - Piscinas Mattei">
     <title>Piscinas Mattei - Gestão de Clientes</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Manifest Dinâmico será injetado via JS -->
+    <!-- Manifest Dinâmico injetado via JS -->
     <link id="manifest-link" rel="manifest" href="">
 
     <script>
@@ -61,59 +59,70 @@
             to { transform: translateY(0); opacity: 1; }
         }
         .animate-slide-up {
-            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
         .animate-fade-in {
-            animation: fadeIn 0.2s ease-out forwards;
+            animation: fadeIn 0.18s ease-out forwards;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin 1s linear infinite;
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 font-sans antialiased selection:bg-pool-200 selection:text-pool-900">
 
     <!-- ===================================================================== -->
-    <!-- TELA DE CARREGAMENTO INICIAL (VERIFICANDO SESSÃO)                     -->
+    <!-- 1. TELA DE CARREGAMENTO INICIAL (VERIFICAÇÃO DE SESSÃO)               -->
     <!-- ===================================================================== -->
-    <div id="auth-loading-screen" class="fixed inset-0 z-50 bg-gradient-to-br from-pool-800 via-pool-700 to-cyan-600 flex flex-col items-center justify-center text-white p-6">
+    <div id="auth-loading-screen" class="fixed inset-0 z-50 bg-gradient-to-br from-pool-900 via-pool-700 to-cyan-600 flex flex-col items-center justify-center text-white p-6">
         <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center mb-4 shadow-xl">
-            <i data-lucide="waves" class="w-9 h-9 text-white animate-pulse"></i>
+            <svg class="w-9 h-9 text-white animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+            </svg>
         </div>
         <h1 class="text-xl font-extrabold tracking-tight">Piscinas Mattei</h1>
-        <p class="text-xs font-medium text-pool-100 mt-1 flex items-center gap-2">
-            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
-            <span>Verificando autenticação...</span>
+        <p class="text-xs font-medium text-pool-100 mt-1.5 flex items-center gap-2">
+            <svg class="w-4 h-4 animate-spin-slow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            <span>Conectando ao sistema...</span>
         </p>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- TELA DE LOGIN (FIREBASE AUTHENTICATION)                               -->
+    <!-- 2. TELA DE LOGIN SEGURA (FIREBASE AUTHENTICATION)                     -->
     <!-- ===================================================================== -->
     <section id="login-screen" class="hidden min-h-screen bg-gradient-to-br from-pool-900 via-pool-700 to-cyan-600 flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
-            <!-- Topo da Tela de Login -->
-            <div class="bg-gradient-to-r from-pool-700 to-cyan-600 px-6 py-7 text-center text-white relative">
+            <div class="bg-gradient-to-r from-pool-800 to-pool-600 px-6 py-7 text-center text-white">
                 <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center mx-auto mb-3 shadow-inner">
-                    <i data-lucide="waves" class="w-9 h-9 text-white"></i>
+                    <svg class="w-9 h-9 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                        <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                        <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                    </svg>
                 </div>
                 <h1 class="text-2xl font-extrabold tracking-tight">Piscinas Mattei</h1>
                 <p class="text-xs font-medium text-pool-100 mt-1">Acesso Restrito • Gestão de Clientes e Rotas</p>
             </div>
 
-            <!-- Formulário de Login -->
-            <form id="login-form" onsubmit="handleLogin(event)" class="p-6 sm:p-8 space-y-4">
-                <!-- Alerta de Erro / Sucesso no Login -->
+            <form id="login-form" class="p-6 sm:p-8 space-y-4">
                 <div id="login-alert" class="hidden p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 border">
-                    <i id="login-alert-icon" data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                    <svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <span id="login-alert-msg">Mensagem</span>
                 </div>
 
                 <div>
-                    <label for="login-email" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">E-mail de Acesso</label>
+                    <label for="login-email" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">E-mail</label>
                     <div class="relative">
-                        <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                         <input 
                             type="email" 
                             id="login-email" 
@@ -128,12 +137,12 @@
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label for="login-password" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Senha</label>
-                        <button type="button" onclick="handlePasswordReset()" class="text-xs font-bold text-pool-700 hover:text-pool-800 hover:underline">
+                        <button type="button" id="btn-forgot-password" class="text-xs font-bold text-pool-700 hover:text-pool-800 hover:underline">
                             Esqueci minha senha
                         </button>
                     </div>
                     <div class="relative">
-                        <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         <input 
                             type="password" 
                             id="login-password" 
@@ -144,11 +153,12 @@
                         >
                         <button 
                             type="button" 
-                            onclick="togglePasswordVisibility()" 
+                            id="btn-toggle-pass"
                             title="Mostrar ou ocultar senha"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
                         >
-                            <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+                            <svg id="eye-icon-open" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg id="eye-icon-closed" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
                         </button>
                     </div>
                 </div>
@@ -158,14 +168,14 @@
                     id="btn-login-submit"
                     class="w-full py-3.5 bg-pool-600 hover:bg-pool-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-pool-600/25 flex items-center justify-center gap-2 transition mt-2"
                 >
-                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                     <span>Entrar no Sistema</span>
                 </button>
 
                 <div class="pt-2 text-center">
                     <p class="text-[11px] text-slate-400 font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
-                        <span>Protegido por Firebase Authentication & SSL</span>
+                        <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span>Autenticação Segura Firebase</span>
                     </p>
                 </div>
             </form>
@@ -173,256 +183,428 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- APLICATIVO PRINCIPAL (VISÍVEL SOMENTE APÓS LOGIN)                     -->
+    <!-- 3. APLICATIVO PRINCIPAL (VISÍVEL APÓS LOGIN)                          -->
     <!-- ===================================================================== -->
     <div id="app-shell" class="hidden pb-24">
 
-        <!-- CABEÇALHO FIXO -->
-        <header class="sticky top-0 z-30 bg-gradient-to-r from-pool-700 to-cyan-600 text-white shadow-md">
+        <!-- CABEÇALHO FIXO AZUL MODERNO -->
+        <header class="sticky top-0 z-30 bg-gradient-to-r from-[#0369a1] to-[#0284c7] text-white shadow-md">
             <div class="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-3 min-w-0">
+                    <!-- Logo SVG Inline -->
                     <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-inner shrink-0">
-                        <i data-lucide="waves" class="w-6 h-6 text-white"></i>
+                        <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                            <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                            <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                        </svg>
                     </div>
                     <div class="min-w-0">
                         <h1 class="font-extrabold text-lg leading-tight tracking-tight truncate">Piscinas Mattei</h1>
                         <div class="flex items-center gap-2 flex-wrap mt-0.5">
-                            <!-- Indicador de Sincronização Firebase -->
                             <div id="sync-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-pool-900/40 border border-white/15 text-[11px] font-semibold text-amber-200">
                                 <span id="sync-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                                <span id="sync-text">Sincronizando...</span>
+                                <span id="sync-text">Conectando...</span>
                             </div>
-                            <!-- E-mail do usuário conectado -->
                             <span id="header-user-email" class="hidden sm:inline-block text-[11px] text-pool-100 font-medium truncate max-w-[170px]"></span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <!-- Botão Instalar App -->
-                    <button id="btn-install-pwa" onclick="handleInstallClick()" class="hidden bg-white/20 hover:bg-white/30 active:bg-white/40 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-white/25">
-                        <i data-lucide="download" class="w-4 h-4"></i>
+                    <!-- Botão Instalar PWA -->
+                    <button id="btn-install-pwa" type="button" class="hidden bg-white/20 hover:bg-white/30 active:bg-white/40 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-white/25">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         <span class="hidden sm:inline">Instalar</span>
                     </button>
 
-                    <!-- Botão Configurações / Backup -->
-                    <button onclick="openBackupModal()" title="Configurações, Mensagens e Backup" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center transition">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
+                    <!-- Botão Configurações -->
+                    <button id="btn-open-settings" type="button" title="Configurações e Backup" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center transition">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
 
-                    <!-- Botão Sair (Logout) -->
-                    <button onclick="confirmLogout()" title="Sair da conta" class="w-10 h-10 rounded-xl bg-rose-500/25 hover:bg-rose-500/40 active:bg-rose-500/50 border border-white/15 flex items-center justify-center transition">
-                        <i data-lucide="log-out" class="w-4 h-4 text-white"></i>
+                    <!-- Botão Sair -->
+                    <button id="btn-logout" type="button" title="Sair da conta" class="w-10 h-10 rounded-xl bg-rose-500/25 hover:bg-rose-500/40 active:bg-rose-500/50 border border-white/15 flex items-center justify-center transition">
+                        <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     </button>
                 </div>
             </div>
 
-            <!-- RESUMO RÁPIDO (KPIs) -->
+            <!-- RESUMO DA SEMANA -->
             <div class="max-w-3xl mx-auto px-4 pb-3.5">
                 <div class="grid grid-cols-3 gap-2 bg-pool-900/35 backdrop-blur-md rounded-2xl p-2.5 border border-white/10">
                     <div class="text-center border-r border-white/15 px-1">
-                        <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-pool-100 font-semibold">Clientes</p>
-                        <p id="stat-total" class="text-base sm:text-lg font-extrabold text-white mt-0.5">0</p>
+                        <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-pool-100 font-semibold">Total Semana</p>
+                        <p id="stat-week-total" class="text-base sm:text-lg font-extrabold text-white mt-0.5">0</p>
                     </div>
                     <div class="text-center border-r border-white/15 px-1">
-                        <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-pool-100 font-semibold">Visitas Pend.</p>
-                        <p class="text-base sm:text-lg font-extrabold text-amber-300 mt-0.5">
-                            <span id="stat-today-pending">0</span><span class="text-xs font-semibold text-pool-200">/<span id="stat-week-pending">0</span> sem</span>
-                        </p>
+                        <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-pool-100 font-semibold">Concluídos</p>
+                        <p id="stat-week-completed" class="text-base sm:text-lg font-extrabold text-emerald-300 mt-0.5">0</p>
                     </div>
                     <div class="text-center px-1">
-                        <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-pool-100 font-semibold">Pago / Pend.</p>
-                        <p class="text-xs sm:text-sm font-extrabold mt-1 leading-tight">
-                            <span id="stat-paid-rev" class="text-emerald-300">R$ 0</span>
-                            <span class="text-white/40 mx-0.5">|</span>
-                            <span id="stat-pending-rev" class="text-amber-300">R$ 0</span>
-                        </p>
+                        <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-pool-100 font-semibold">Pendentes</p>
+                        <p id="stat-week-pending" class="text-base sm:text-lg font-extrabold text-amber-300 mt-0.5">0</p>
                     </div>
                 </div>
             </div>
+
+            <!-- BARRA DE NAVEGAÇÃO EM 1 ÚNICA LINHA (GRID-COLS-3) -->
+            <nav class="bg-white text-slate-800 border-b border-slate-200">
+                <div class="max-w-3xl mx-auto px-2 sm:px-4 grid grid-cols-3">
+                    <button 
+                        id="tab-btn-rota" 
+                        type="button"
+                        class="h-12 px-1 sm:px-3 border-b-2 border-pool-600 text-pool-700 flex items-center justify-center gap-1 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition"
+                    >
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span>Rota</span>
+                        <span id="tab-badge-rota" class="px-1.5 py-0.5 text-[10px] rounded-full bg-pool-100 text-pool-800 font-bold shrink-0">0</span>
+                    </button>
+
+                    <button 
+                        id="tab-btn-clientes" 
+                        type="button"
+                        class="h-12 px-1 sm:px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition"
+                    >
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Clientes</span>
+                        <span id="tab-badge-clientes" class="px-1.5 py-0.5 text-[10px] rounded-full bg-slate-100 text-slate-600 font-bold shrink-0">0</span>
+                    </button>
+
+                    <button 
+                        id="tab-btn-financeiro" 
+                        type="button"
+                        class="h-12 px-1 sm:px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition"
+                    >
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        <span>Financeiro</span>
+                        <span id="tab-badge-financeiro" class="px-1.5 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-bold shrink-0">0</span>
+                    </button>
+                </div>
+            </nav>
         </header>
 
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="max-w-3xl mx-auto px-4 pt-4">
             
-            <!-- BARRA DE BUSCA E FILTRO SOMENTE PENDENTES -->
-            <div class="flex gap-2 mb-3">
-                <div class="relative flex-1">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <!-- =============================================================== -->
+            <!-- ABA 1: ROTA SEMANAL                                             -->
+            <!-- =============================================================== -->
+            <section id="view-rota">
+                <!-- Busca e Toggle Só Pendentes -->
+                <div class="flex gap-2 mb-3">
+                    <div class="relative flex-1">
+                        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="Buscar na rota por nome ou endereço..." 
+                            class="w-full pl-10 pr-9 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-pool-500 focus:border-transparent transition"
+                        >
+                        <button id="clear-search" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                        </button>
+                    </div>
+                    
+                    <button 
+                        id="btn-filter-pending" 
+                        type="button"
+                        class="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition flex items-center gap-1.5 whitespace-nowrap"
+                    >
+                        <svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        <span>Só Pendentes</span>
+                    </button>
+                </div>
+
+                <!-- Filtro Rápido por Dia da Semana -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-2" id="day-filters">
+                    <!-- Gerado via JS -->
+                </div>
+
+                <!-- Barra de Ações da Rota -->
+                <div class="flex items-center justify-between mb-3 px-1 gap-2 flex-wrap">
+                    <span id="results-label" class="text-xs font-bold uppercase tracking-wider text-slate-500">Carregando rota...</span>
+                    <div class="flex items-center gap-3">
+                        <button id="btn-reset-week" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 transition" title="Reinicia planos mensais e remove visitas avulsas/extras concluídas">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Resetar Semana</span>
+                        </button>
+                        <button id="btn-filter-today" type="button" class="text-xs font-bold text-pool-700 hover:text-pool-800 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+                            <span>Hoje</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Cards da Rota Semanal -->
+                <div id="clients-list" class="space-y-3.5">
+                    <!-- Cards injetados via JS -->
+                </div>
+
+                <!-- Estado Vazio Rota -->
+                <div id="empty-state" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm mt-2">
+                    <div class="w-16 h-16 bg-pool-50 text-pool-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">Nenhuma visita agendada neste filtro</h3>
+                    <p class="text-sm text-slate-500 mt-1 max-w-xs mx-auto">Altere o dia da semana, cadastre um novo cliente ou reative uma visita avulsa na aba Clientes.</p>
+                    <div class="flex items-center justify-center gap-2 mt-4">
+                        <button id="btn-empty-clear-filters" type="button" class="px-4 py-2 bg-pool-100 text-pool-800 font-semibold text-xs rounded-xl hover:bg-pool-200 transition">
+                            Limpar Filtros
+                        </button>
+                        <button id="btn-empty-go-base" type="button" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
+                            Ver Clientes
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =============================================================== -->
+            <!-- ABA 2: BASE DE CLIENTES (CARTEIRA COMPLETA)                     -->
+            <!-- =============================================================== -->
+            <section id="view-clientes" class="hidden">
+                <!-- Busca na Base de Clientes -->
+                <div class="relative mb-3">
+                    <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <input 
                         type="text" 
-                        id="search-input" 
-                        oninput="renderClients()"
-                        placeholder="Buscar cliente, bairro ou rua..." 
+                        id="base-search-input" 
+                        placeholder="Buscar na carteira (nome, endereço, telefone)..." 
                         class="w-full pl-10 pr-9 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-pool-500 focus:border-transparent transition"
                     >
-                    <button id="clear-search" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
-                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    <button id="clear-base-search" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                     </button>
                 </div>
-                
-                <button 
-                    id="btn-filter-pending" 
-                    onclick="togglePendingFilter()"
-                    class="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition flex items-center gap-1.5 whitespace-nowrap"
-                >
-                    <i data-lucide="filter" class="w-4 h-4 text-amber-500"></i>
-                    <span>Somente Pendentes</span>
-                </button>
-            </div>
 
-            <!-- FILTRO POR DIA DA SEMANA (SCROLL HORIZONTAL) -->
-            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-2" id="day-filters">
-                <!-- Gerado via JS -->
-            </div>
+                <!-- Filtros por Tipo (Todos, Mensalistas, Avulsos) -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-2" id="plan-type-filters">
+                    <!-- Gerado via JS -->
+                </div>
 
-            <!-- CONTADOR DE RESULTADOS E AÇÕES DA SEMANA -->
-            <div class="flex items-center justify-between mb-3 px-1 gap-2 flex-wrap">
-                <span id="results-label" class="text-xs font-bold uppercase tracking-wider text-slate-500">Carregando clientes...</span>
-                <div class="flex items-center gap-3">
-                    <button onclick="confirmResetWeek()" class="text-xs font-semibold text-slate-500 hover:text-rose-600 flex items-center gap-1 transition" title="Desmarcar limpezas concluídas da semana">
-                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                        <span>Resetar Semana</span>
-                    </button>
-                    <button onclick="filterToday()" class="text-xs font-bold text-pool-700 hover:text-pool-800 flex items-center gap-1">
-                        <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
-                        <span>Rota de hoje</span>
+                <!-- Contador da Base -->
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <span id="base-results-label" class="text-xs font-bold uppercase tracking-wider text-slate-500">0 clientes na base</span>
+                    <span class="text-[11px] font-medium text-slate-400">Ordem alfabética</span>
+                </div>
+
+                <!-- Lista da Base de Clientes -->
+                <div id="base-clients-list" class="space-y-3.5">
+                    <!-- Cards injetados via JS -->
+                </div>
+
+                <!-- Estado Vazio Base -->
+                <div id="base-empty-state" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm mt-2">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">Nenhum cliente encontrado</h3>
+                    <p class="text-sm text-slate-500 mt-1 max-w-xs mx-auto">Cadastre clientes mensais ou visitas avulsas tocando em <strong>Novo Cliente</strong>.</p>
+                </div>
+            </section>
+
+            <!-- =============================================================== -->
+            <!-- ABA 3: FINANCEIRO (VALORES EM REAIS R$)                         -->
+            <!-- =============================================================== -->
+            <section id="view-financeiro" class="hidden">
+                <!-- 3 Cards de Resumo em Reais -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-4">
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex sm:block items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-pool-500 shrink-0"></span>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Previsto (Entradas)</p>
+                        </div>
+                        <p id="fin-total-expected" class="text-lg sm:text-xl font-extrabold text-slate-900 sm:mt-1">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-emerald-50/80 p-3.5 rounded-2xl border border-emerald-200 shadow-sm flex sm:block items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Já Pago (Recebido)</p>
+                        </div>
+                        <p id="fin-total-paid" class="text-lg sm:text-xl font-extrabold text-emerald-700 sm:mt-1">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-amber-50/90 p-3.5 rounded-2xl border border-amber-200 shadow-sm flex sm:block items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-amber-800">Pendente a Receber</p>
+                        </div>
+                        <p id="fin-total-pending" class="text-lg sm:text-xl font-extrabold text-amber-700 sm:mt-1">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <!-- Busca Financeiro -->
+                <div class="relative mb-3">
+                    <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input 
+                        type="text" 
+                        id="fin-search-input" 
+                        placeholder="Buscar cliente no financeiro..." 
+                        class="w-full pl-10 pr-9 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-pool-500 focus:border-transparent transition"
+                    >
+                    <button id="clear-fin-search" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                     </button>
                 </div>
-            </div>
 
-            <!-- LISTA DE CARDS DE CLIENTES -->
-            <div id="clients-list" class="space-y-3.5">
-                <!-- Cards injetados via JavaScript -->
-            </div>
-
-            <!-- ESTADO VAZIO -->
-            <div id="empty-state" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm mt-2">
-                <div class="w-16 h-16 bg-pool-50 text-pool-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i data-lucide="waves" class="w-8 h-8"></i>
+                <!-- Filtros de Status (Todos, Pendentes, Pagos) -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-2" id="fin-status-filters">
+                    <!-- Gerado via JS -->
                 </div>
-                <h3 class="text-base font-bold text-slate-800">Nenhum cliente encontrado</h3>
-                <p class="text-sm text-slate-500 mt-1 max-w-xs mx-auto">Tente mudar o filtro do dia da semana ou cadastre um novo cliente no botão abaixo.</p>
-                <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-pool-100 text-pool-800 font-semibold text-xs rounded-xl hover:bg-pool-200 transition">
-                    Limpar Filtros
-                </button>
-            </div>
+
+                <!-- Contador e Botão Virar Mês -->
+                <div class="flex items-center justify-between mb-3 px-1 gap-2 flex-wrap">
+                    <span id="fin-results-label" class="text-xs font-bold uppercase tracking-wider text-slate-500">0 lançamentos</span>
+                    <button id="btn-reset-month-payments" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition" title="Marca todos os planos mensais como Pendente para o novo mês">
+                        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>Virar Mês (Resetar Pagamentos)</span>
+                    </button>
+                </div>
+
+                <!-- Lista Financeira -->
+                <div id="fin-clients-list" class="space-y-3">
+                    <!-- Cards financeiros injetados via JS -->
+                </div>
+
+                <!-- Estado Vazio Financeiro -->
+                <div id="fin-empty-state" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm mt-2">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">Nenhum lançamento encontrado</h3>
+                    <p class="text-sm text-slate-500 mt-1 max-w-xs mx-auto">Não há lançamentos neste filtro financeiro no momento.</p>
+                </div>
+            </section>
 
         </main>
 
-        <!-- BOTÃO FLUTUANTE NOVO CLIENTE (FAB) -->
+        <!-- BOTÃO FLUTUANTE NOVO CLIENTE -->
         <div class="fixed bottom-5 right-5 z-30">
             <button 
-                onclick="openClientModal()" 
+                id="btn-fab-new-client"
+                type="button"
                 class="bg-pool-600 hover:bg-pool-700 active:scale-95 text-white font-bold px-5 py-3.5 rounded-2xl shadow-lg shadow-pool-600/30 flex items-center gap-2 transition transform"
             >
-                <i data-lucide="plus" class="w-5 h-5"></i>
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span class="text-sm">Novo Cliente</span>
             </button>
         </div>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MODAL: CADASTRO / EDIÇÃO DE CLIENTE                                   -->
+    <!-- MODAL 1: CADASTRO / EDIÇÃO DE CLIENTE                                 -->
     <!-- ===================================================================== -->
     <div id="client-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col animate-slide-up">
             
-            <!-- Cabeçalho Modal -->
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <h2 id="modal-title" class="text-lg font-extrabold text-slate-900">Novo Cliente</h2>
-                <button onclick="closeClientModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button type="button" data-close-modal="client-modal" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
 
-            <!-- Formulário com Scroll -->
-            <form id="client-form" onsubmit="saveClient(event)" class="p-6 overflow-y-auto space-y-4">
+            <form id="client-form" class="p-6 overflow-y-auto space-y-4">
                 <input type="hidden" id="client-id">
 
-                <!-- Nome -->
+                <!-- Tipo de Atendimento -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nome do Cliente *</label>
-                    <input type="text" id="client-name" required placeholder="Ex: Carlos Eduardo Silva" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Tipo de Atendimento *</label>
+                    <input type="hidden" id="client-plan-type" value="mensal">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button 
+                            type="button" 
+                            id="btn-plan-mensal" 
+                            class="p-3 rounded-xl border-2 border-pool-600 bg-pool-50 text-pool-900 text-left transition flex items-start gap-2.5"
+                        >
+                            <svg class="w-4 h-4 text-pool-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
+                            <div>
+                                <p class="text-xs font-extrabold leading-tight">Plano Mensal</p>
+                                <p class="text-[10px] text-pool-700 mt-0.5 leading-snug">Recorrente toda semana na rota</p>
+                            </div>
+                        </button>
+
+                        <button 
+                            type="button" 
+                            id="btn-plan-avulsa" 
+                            class="p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-left transition flex items-start gap-2.5"
+                        >
+                            <svg class="w-4 h-4 text-purple-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+                            <div>
+                                <p class="text-xs font-extrabold leading-tight">Visita Avulsa</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">Pontual; sai da rota ao resetar</p>
+                            </div>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- WhatsApp -->
+                <!-- Nome e Telefone -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="client-name" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nome do Cliente *</label>
+                        <input type="text" id="client-name" required placeholder="Ex: Carlos Eduardo" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label for="client-phone" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">WhatsApp / Telefone *</label>
+                        <input type="tel" id="client-phone" required placeholder="(47) 99999-9999" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Endereço Completo -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">WhatsApp / Telefone *</label>
-                    <div class="relative">
-                        <i data-lucide="phone" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-600"></i>
-                        <input type="tel" id="client-phone" required maxlength="15" oninput="maskPhone(this)" placeholder="(47) 99999-9999" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                    </div>
+                    <label for="client-address" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Endereço Completo (Rua, Nº, Bairro, Cidade) *</label>
+                    <input type="text" id="client-address" required placeholder="Ex: Rua das Palmeiras, 420 - América, Joinville" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
                 </div>
 
-                <!-- Endereço (Rua e Número + Bairro + Cidade) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rua e Número *</label>
-                        <input type="text" id="client-street" required placeholder="Ex: Rua Ottokar Doerffel, 1250" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                    </div>
+                <!-- Dia da Semana, Valor (R$) e Dia de Vencimento -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Bairro *</label>
-                        <input type="text" id="client-neighborhood" required placeholder="Ex: Atiradores" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Cidade / UF</label>
-                        <input type="text" id="client-city" value="Joinville - SC" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <!-- Dia da Visita e Tipo/Tamanho da Piscina -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Dia da Visita *</label>
-                        <select id="client-day" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                            <option value="Segunda">Segunda-feira</option>
-                            <option value="Terça">Terça-feira</option>
-                            <option value="Quarta">Quarta-feira</option>
-                            <option value="Quinta">Quinta-feira</option>
-                            <option value="Sexta">Sexta-feira</option>
+                        <label for="client-day" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Dia da Rota *</label>
+                        <select id="client-day" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
+                            <option value="Segunda">Segunda</option>
+                            <option value="Terça">Terça</option>
+                            <option value="Quarta">Quarta</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Sexta">Sexta</option>
                             <option value="Sábado">Sábado</option>
                         </select>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Tipo / Tamanho da Piscina</label>
-                        <input type="text" id="client-pool-type" placeholder="Ex: Vinil 30.000L / Fibra" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
+                        <label for="client-price" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Valor (R$) *</label>
+                        <input type="number" step="0.01" min="0" id="client-price" required placeholder="250.00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
+                    </div>
+
+                    <div id="due-day-wrapper" class="col-span-2 sm:col-span-1">
+                        <label for="client-due-day" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Dia Vencimento</label>
+                        <input type="number" min="1" max="31" id="client-due-day" placeholder="Ex: 10" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
                     </div>
                 </div>
 
-                <!-- Valor, Dia de Vencimento e Status de Pagamento -->
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Valor (R$)</label>
-                        <input type="number" step="0.01" id="client-price" placeholder="250.00" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Venc. (Dia)</label>
-                        <input type="number" min="1" max="31" id="client-due-day" placeholder="10" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Pagamento</label>
-                        <select id="client-payment" class="w-full px-2.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none">
-                            <option value="Em dia">Pago</option>
-                            <option value="Pendente">Pendente</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Observações Químicas e Acesso -->
+                <!-- Observações Técnicas -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Observações Químicas / Acesso</label>
-                    <textarea id="client-notes" rows="3" placeholder="Ex: Código do portão #1234, cachorro dócil, cloro estabilizado, filtro de areia..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none"></textarea>
+                    <label for="client-notes" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Observações / Acesso / Produtos</label>
+                    <textarea id="client-notes" rows="2" placeholder="Ex: Senha do portão 1234#, cachorro dócil, usar cloro granulado..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none"></textarea>
                 </div>
 
-                <!-- Botões de Ação do Modal -->
+                <!-- Status de Pagamento -->
+                <label class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/70 transition">
+                    <div>
+                        <p class="text-xs font-bold text-slate-800">Pagamento já realizado (Pago)?</p>
+                        <p class="text-[11px] text-slate-500">Define o status inicial no Financeiro.</p>
+                    </div>
+                    <input type="checkbox" id="client-paid" class="w-5 h-5 accent-emerald-600 rounded cursor-pointer">
+                </label>
+
+                <!-- Botões Modal -->
                 <div class="pt-2 flex items-center justify-between gap-3">
-                    <button type="button" id="btn-delete-client" onclick="confirmDeleteClient()" class="hidden px-4 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm rounded-xl transition flex items-center gap-1.5">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <button type="button" id="btn-delete-client" class="hidden px-4 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm rounded-xl transition flex items-center gap-1.5">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         <span>Excluir</span>
                     </button>
                     <div class="flex-1 flex gap-2 justify-end">
-                        <button type="button" onclick="closeClientModal()" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition">
+                        <button type="button" data-close-modal="client-modal" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition">
                             Cancelar
                         </button>
                         <button type="submit" class="px-6 py-3 bg-pool-600 hover:bg-pool-700 text-white font-bold text-sm rounded-xl shadow-md shadow-pool-600/20 transition">
@@ -435,180 +617,292 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MODAL: WHATSAPP MENSAGEM RÁPIDA                                       -->
+    <!-- MODAL 2: VISITA EXTRA PARA MENSALISTA                                 -->
+    <!-- ===================================================================== -->
+    <div id="extra-visit-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col animate-slide-up">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-base font-extrabold text-slate-900 leading-tight">Agendar Visita Extra</h3>
+                        <p id="extra-client-name" class="text-xs font-semibold text-indigo-700 truncate">Cliente Mensalista</p>
+                    </div>
+                </div>
+                <button type="button" data-close-modal="extra-visit-modal" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+
+            <form id="extra-visit-form" class="p-6 overflow-y-auto space-y-4">
+                <input type="hidden" id="extra-client-id">
+
+                <div class="p-3 bg-indigo-50/80 border border-indigo-200 rounded-xl text-[11px] text-indigo-900 leading-relaxed">
+                    Esta visita extra será adicionada na <strong>Rota Semanal</strong> sem alterar o dia fixo do plano mensal do cliente.
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="extra-day" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Dia da Semana *</label>
+                        <select id="extra-day" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="Segunda">Segunda</option>
+                            <option value="Terça">Terça</option>
+                            <option value="Quarta">Quarta</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Sexta">Sexta</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="extra-price" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Valor Adicional (R$)</label>
+                        <input type="number" step="0.01" min="0" id="extra-price" value="0" placeholder="80.00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="extra-reason" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Motivo / Serviço *</label>
+                    <input type="text" id="extra-reason" required placeholder="Ex: Pós-festa, Água verde / Choque..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <button type="button" data-extra-preset="Pós-festa" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-800 text-[11px] font-semibold transition">Pós-festa</button>
+                        <button type="button" data-extra-preset="Água verde / Choque" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-800 text-[11px] font-semibold transition">Água verde / Choque</button>
+                        <button type="button" data-extra-preset="Aspiração extra" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-800 text-[11px] font-semibold transition">Aspiração extra</button>
+                    </div>
+                </div>
+
+                <label class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/70 transition">
+                    <div>
+                        <p class="text-xs font-bold text-slate-800">Já está pago?</p>
+                        <p class="text-[11px] text-slate-500">Se desmarcado e tiver valor &gt; 0, entra como Pendente.</p>
+                    </div>
+                    <input type="checkbox" id="extra-paid" class="w-5 h-5 accent-indigo-600 rounded cursor-pointer">
+                </label>
+
+                <div class="pt-1 flex gap-2 justify-end">
+                    <button type="button" data-close-modal="extra-visit-modal" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 py-3 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1.5 transition">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Agendar Extra</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 3: REATIVAR VISITA AVULSA                                       -->
+    <!-- ===================================================================== -->
+    <div id="reactivate-avulsa-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col animate-slide-up">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-base font-extrabold text-slate-900 leading-tight">Agendar Nova Visita Avulsa</h3>
+                        <p id="reactivate-client-name" class="text-xs font-semibold text-purple-700 truncate">Cliente Avulso</p>
+                    </div>
+                </div>
+                <button type="button" data-close-modal="reactivate-avulsa-modal" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+
+            <form id="reactivate-avulsa-form" class="p-6 overflow-y-auto space-y-4">
+                <input type="hidden" id="reactivate-client-id">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="reactivate-day" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Dia da Semana *</label>
+                        <select id="reactivate-day" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            <option value="Segunda">Segunda</option>
+                            <option value="Terça">Terça</option>
+                            <option value="Quarta">Quarta</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Sexta">Sexta</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="reactivate-price" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Valor (R$) *</label>
+                        <input type="number" step="0.01" min="0" id="reactivate-price" required placeholder="150.00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <label class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/70 transition">
+                    <div>
+                        <p class="text-xs font-bold text-slate-800">Já está pago?</p>
+                        <p class="text-[11px] text-slate-500">Se desmarcado, entra como Pendente no Financeiro.</p>
+                    </div>
+                    <input type="checkbox" id="reactivate-paid" class="w-5 h-5 accent-purple-600 rounded cursor-pointer">
+                </label>
+
+                <div class="pt-1 flex gap-2 justify-end">
+                    <button type="button" data-close-modal="reactivate-avulsa-modal" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 py-3 px-5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl shadow-md shadow-purple-600/20 flex items-center justify-center gap-1.5 transition">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Colocar na Rota</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 4: WHATSAPP COM TEMPLATES EDITÁVEIS                             -->
     <!-- ===================================================================== -->
     <div id="whatsapp-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 animate-slide-up">
             <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <h3 class="font-extrabold text-slate-900 text-base">Enviar WhatsApp</h3>
-                        <p id="wa-client-name" class="text-xs font-semibold text-slate-500">Cliente</p>
+                        <p id="wa-client-name" class="text-xs font-semibold text-slate-500 truncate">Cliente</p>
                     </div>
                 </div>
-                <button onclick="closeWhatsAppModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+                <button type="button" data-close-modal="whatsapp-modal" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
 
-            <!-- Modelos Prontos -->
-            <div class="mb-3">
-                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Modelos rápidos:</p>
-                <div class="flex flex-wrap gap-1.5">
-                    <button type="button" onclick="setWaTemplate('aviso')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition">
-                        🚗 Estou a caminho
-                    </button>
-                    <button type="button" onclick="setWaTemplate('concluido')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition">
-                        ✨ Limpeza concluída
-                    </button>
-                    <button type="button" onclick="setWaTemplate('cobranca')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition">
-                        💲 Lembrete mensalidade
-                    </button>
-                    <button type="button" onclick="setWaTemplate('vazio')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition">
-                        💬 Chat livre (sem texto)
-                    </button>
-                </div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Escolha uma mensagem rápida:</p>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <button type="button" data-wa-tpl="aviso" class="p-2.5 text-left rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition">
+                    <p class="text-xs font-bold text-slate-800">🚗 Estou a caminho</p>
+                    <p class="text-[10px] text-slate-500 truncate">Avisar chegada</p>
+                </button>
+                <button type="button" data-wa-tpl="concluido" class="p-2.5 text-left rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition">
+                    <p class="text-xs font-bold text-slate-800">✨ Limpeza concluída</p>
+                    <p class="text-[10px] text-slate-500 truncate">Confirmar serviço</p>
+                </button>
+                <button type="button" data-wa-tpl="cobranca" class="p-2.5 text-left rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition">
+                    <p class="text-xs font-bold text-slate-800">💳 Cobrança / Valor</p>
+                    <p class="text-[10px] text-slate-500 truncate">Enviar valor em R$</p>
+                </button>
+                <button type="button" data-wa-tpl="vazio" class="p-2.5 text-left rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition">
+                    <p class="text-xs font-bold text-slate-800">💬 Conversa livre</p>
+                    <p class="text-[10px] text-slate-500 truncate">Sem texto inicial</p>
+                </button>
             </div>
 
-            <textarea id="wa-message-text" rows="4" placeholder="Digite sua mensagem ou deixe em branco para abrir o chat livre..." class="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none mb-4"></textarea>
+            <textarea id="wa-message-text" rows="3" placeholder="Digite sua mensagem ou selecione uma opção acima..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none mb-4"></textarea>
 
-            <button onclick="sendWhatsAppNow()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition">
-                <i data-lucide="send" class="w-4 h-4"></i>
+            <button id="btn-send-whatsapp-now" type="button" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 <span>Abrir Conversa no WhatsApp</span>
             </button>
         </div>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MODAL: CONFIGURAÇÕES, MENSAGENS PADRÃO, BACKUP E CONTA                -->
+    <!-- MODAL 5: CONFIGURAÇÕES (TEMPLATES WHATSAPP + BACKUP JSON)             -->
     <!-- ===================================================================== -->
     <div id="backup-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col animate-slide-up">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] flex flex-col animate-slide-up">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <h3 class="font-extrabold text-slate-900 text-lg">Configurações & Nuvem</h3>
-                <button onclick="closeBackupModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+                <h3 class="font-extrabold text-slate-900 text-base">Configurações & Backup</h3>
+                <button type="button" data-close-modal="backup-modal" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
 
-            <div class="p-6 overflow-y-auto space-y-4">
-                <!-- Card Conta Conectada e Logout -->
-                <div class="p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between gap-3">
+            <div class="p-6 overflow-y-auto space-y-5">
+                <div class="p-3.5 bg-pool-50 border border-pool-200 rounded-2xl flex items-center justify-between gap-2">
                     <div class="min-w-0">
-                        <p class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Conta Conectada</p>
-                        <p id="settings-user-email" class="text-sm font-bold text-white truncate mt-0.5">-</p>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-pool-700">Conta Conectada</p>
+                        <p id="settings-user-email" class="text-xs font-extrabold text-slate-900 truncate">usuario@email.com</p>
                     </div>
-                    <button onclick="confirmLogout()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shrink-0 transition">
-                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                        <span>Sair da Conta</span>
+                    <button id="btn-settings-logout" type="button" class="px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs rounded-xl transition shrink-0">
+                        Sair da Conta
                     </button>
                 </div>
 
-                <!-- Editor de Mensagens Padrão do WhatsApp (Sincronizado no Firestore) -->
-                <div class="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-200/80">
-                    <h4 class="text-sm font-bold text-emerald-950 mb-1 flex items-center gap-1.5">
-                        <i data-lucide="message-square" class="w-4 h-4 text-emerald-600"></i>
-                        <span>Mensagens Padrão do WhatsApp</span>
-                    </h4>
-                    <p class="text-[11px] text-emerald-800 mb-3">Use <strong>{nome}</strong> para o primeiro nome do cliente e <strong>{valor}</strong> para a mensalidade. Salvo na nuvem.</p>
-                    
-                    <div class="space-y-2.5">
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase text-emerald-900 mb-1">1. Aviso "Estou a caminho"</label>
-                            <textarea id="tpl-aviso" rows="2" class="w-full p-2.5 bg-white border border-emerald-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase text-emerald-900 mb-1">2. "Limpeza concluída"</label>
-                            <textarea id="tpl-concluido" rows="2" class="w-full p-2.5 bg-white border border-emerald-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase text-emerald-900 mb-1">3. "Lembrete mensalidade"</label>
-                            <textarea id="tpl-cobranca" rows="2" class="w-full p-2.5 bg-white border border-emerald-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
-                        </div>
-                        <button onclick="saveTemplatesToCloud()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
-                            <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-                            <span>Salvar Mensagens na Nuvem</span>
-                        </button>
+                <!-- Templates de Mensagens do WhatsApp (configuracoes/whatsapp) -->
+                <div class="space-y-3">
+                    <div>
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Mensagens Padrão do WhatsApp</h4>
+                        <p class="text-[11px] text-slate-500">Use <strong>{nome}</strong> para o primeiro nome e <strong>{valor}</strong> para o valor em reais.</p>
                     </div>
-                </div>
 
-                <!-- Migração de dados locais antigos (Aparece se existir localStorage) -->
-                <div id="local-migration-box" class="hidden p-4 bg-amber-50 rounded-2xl border border-amber-200">
-                    <h4 class="text-sm font-bold text-amber-900 mb-1 flex items-center gap-1.5">
-                        <i data-lucide="database" class="w-4 h-4 text-amber-600"></i>
-                        <span>Clientes Locais Encontrados</span>
-                    </h4>
-                    <p id="local-migration-desc" class="text-xs text-amber-800 mb-2.5">Encontramos clientes salvos anteriormente neste celular.</p>
-                    <button onclick="migrateLocalStorageToFirebase()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5">
-                        <i data-lucide="upload" class="w-4 h-4"></i>
-                        <span>Enviar Clientes Antigos para o Firebase</span>
+                    <div>
+                        <label for="tpl-aviso" class="block text-[11px] font-bold text-slate-600 mb-1">1. Aviso "Estou a caminho"</label>
+                        <textarea id="tpl-aviso" rows="2" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="tpl-concluido" class="block text-[11px] font-bold text-slate-600 mb-1">2. Aviso "Limpeza concluída"</label>
+                        <textarea id="tpl-concluido" rows="2" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="tpl-cobranca" class="block text-[11px] font-bold text-slate-600 mb-1">3. Lembrete de Pagamento</label>
+                        <textarea id="tpl-cobranca" rows="2" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-pool-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <button id="btn-save-templates" type="button" class="w-full py-2.5 bg-pool-600 hover:bg-pool-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                        Salvar Mensagens na Nuvem
                     </button>
                 </div>
 
-                <!-- Exportar / Importar JSON -->
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                    <h4 class="text-sm font-bold text-slate-800 mb-1">Backup Manual (Arquivo JSON)</h4>
-                    <p class="text-xs text-slate-500 mb-3">Exporte ou restaure uma cópia de segurança dos seus clientes diretamente para a nuvem.</p>
-                    
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <button onclick="exportData()" class="py-2.5 px-3 bg-pool-600 hover:bg-pool-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
-                            <i data-lucide="download" class="w-4 h-4"></i>
+                <!-- Backup JSON -->
+                <div class="pt-3 border-t border-slate-200 space-y-2.5">
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Backup Manual (Arquivo JSON)</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-export-json" type="button" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             <span>Exportar JSON</span>
                         </button>
-                        <label class="py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition">
-                            <i data-lucide="upload" class="w-4 h-4"></i>
-                            <span>Importar p/ Nuvem</span>
-                            <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
+
+                        <label class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Importar JSON</span>
+                            <input type="file" id="import-json-input" accept=".json" class="hidden">
                         </label>
                     </div>
-                </div>
-
-                <!-- Instruções Instalação PWA -->
-                <div class="p-4 bg-pool-50 rounded-2xl border border-pool-100">
-                    <h4 class="text-sm font-bold text-pool-900 mb-1 flex items-center gap-1.5">
-                        <i data-lucide="smartphone" class="w-4 h-4 text-pool-600"></i>
-                        <span>Instalar na Tela Inicial</span>
-                    </h4>
-                    <ul class="text-xs text-pool-800 space-y-1.5 mt-2">
-                        <li><strong>Android (Chrome):</strong> Toque nos 3 pontinhos no canto superior e selecione <em>"Instalar aplicativo"</em>.</li>
-                        <li><strong>iPhone (Safari):</strong> Toque no ícone de Compartilhar na barra inferior e escolha <em>"Adicionar à Tela de Início"</em>.</li>
-                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MODAL DE CONFIRMAÇÃO PERSONALIZADO                                    -->
+    <!-- MODAL 6: CONFIRMAÇÃO GENÉRICA                                         -->
     <!-- ===================================================================== -->
     <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center">
             <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
-                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
             <h3 id="confirm-title" class="text-base font-extrabold text-slate-900">Confirmar ação?</h3>
-            <p id="confirm-desc" class="text-xs text-slate-500 mt-1 mb-5">Essa ação não poderá ser desfeita.</p>
+            <p id="confirm-desc" class="text-xs text-slate-600 mt-1.5 mb-5 whitespace-pre-line leading-relaxed">Essa ação não poderá ser desfeita.</p>
             <div class="flex gap-2.5">
-                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Cancelar</button>
-                <button id="confirm-yes-btn" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition">Confirmar</button>
+                <button type="button" data-close-modal="confirm-modal" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Cancelar</button>
+                <button id="confirm-yes-btn" type="button" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition">Confirmar</button>
             </div>
         </div>
     </div>
 
     <!-- TOAST DE NOTIFICAÇÃO -->
-    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 transition-all">
-        <i id="toast-icon" data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-        <span id="toast-msg">Ação realizada!</span>
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 transition-all max-w-[90vw]">
+        <span id="toast-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+        <span id="toast-msg" class="truncate">Ação realizada!</span>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- LÓGICA JAVASCRIPT: FIREBASE AUTH + FIRESTORE REALTIME + PWA           -->
+    <!-- SCRIPT PRINCIPAL: FIREBASE MODULAR SDK v11.0.2 + LÓGICA COMPLETA      -->
     <!-- ===================================================================== -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { 
             getAuth, 
             setPersistence, 
@@ -617,8 +911,9 @@
             signInWithEmailAndPassword, 
             sendPasswordResetEmail, 
             signOut 
-        } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { 
+            getFirestore,
             initializeFirestore, 
             persistentLocalCache, 
             persistentMultipleTabManager,
@@ -630,10 +925,10 @@
             deleteDoc, 
             onSnapshot,
             writeBatch
-        } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         // ---------------------------------------------------------------------
-        // 1. INICIALIZAÇÃO DO FIREBASE (AUTH + FIRESTORE PERSISTENTE)
+        // 1. INICIALIZAÇÃO DO FIREBASE (SDK MODULAR v11.0.2)
         // ---------------------------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyAuaO4lteTGcgiXyro1egTGmOtbE-s-o0k",
@@ -647,67 +942,76 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Garante persistência local da sessão de login no celular
-        setPersistence(auth, browserLocalPersistence).catch(() => {});
+        try {
+            setPersistence(auth, browserLocalPersistence).catch(() => {});
+        } catch (e) {}
 
-        // Cache persistente offline no IndexedDB
-        const db = initializeFirestore(app, {
-            localCache: persistentLocalCache({
-                tabManager: persistentMultipleTabManager()
-            })
-        });
+        let db;
+        try {
+            db = initializeFirestore(app, {
+                localCache: persistentLocalCache({
+                    tabManager: persistentMultipleTabManager()
+                })
+            });
+        } catch (e) {
+            db = getFirestore(app);
+        }
 
         const clientesCollection = collection(db, 'clientes');
-        const configDocRef = doc(db, 'configuracoes', 'whatsapp');
+        const whatsappConfigDocRef = doc(db, 'configuracoes', 'whatsapp');
 
         // ---------------------------------------------------------------------
-        // 2. CONFIGURAÇÃO PWA DINÂMICA (Manifest + Service Worker)
+        // 2. PWA DINÂMICO (Manifest + Service Worker)
         // ---------------------------------------------------------------------
         (function initPWA() {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#0284c7"/><path d="M96 340c40-25 80-25 120 0s80 25 120 0 80-25 120 0v48c-40-25-80-25-120 0s-80 25-120 0-80-25-120 0v-48zm0-75c40-25 80-25 120 0s80 25 120 0 80-25 120 0v48c-40-25-80-25-120 0s-80 25-120 0-80-25-120 0v-48z" fill="#ffffff"/><path d="M180 110v140M332 110v140M180 150h152M180 200h152" stroke="#bae6fd" stroke-width="24" stroke-linecap="round"/></svg>`;
-            const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+            try {
+                const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#0284c7"/><path d="M96 340c40-25 80-25 120 0s80 25 120 0 80-25 120 0v48c-40-25-80-25-120 0s-80 25-120 0-80-25-120 0v-48zm0-75c40-25 80-25 120 0s80 25 120 0 80-25 120 0v48c-40-25-80-25-120 0s-80 25-120 0-80-25-120 0v-48z" fill="#ffffff"/><path d="M180 110v140M332 110v140M180 150h152M180 200h152" stroke="#bae6fd" stroke-width="24" stroke-linecap="round"/></svg>`;
+                const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
 
-            const manifest = {
-                name: "Piscinas Mattei - Gestão de Clientes",
-                short_name: "Piscinas Mattei",
-                description: "Aplicativo de gerenciamento de clientes, rotas e manutenção de piscinas.",
-                start_url: window.location.href,
-                display: "standalone",
-                background_color: "#f1f5f9",
-                theme_color: "#0284c7",
-                orientation: "portrait",
-                icons: [
-                    { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
-                    { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-                ]
-            };
+                const manifest = {
+                    name: "Piscinas Mattei - Gestão de Clientes",
+                    short_name: "Piscinas Mattei",
+                    description: "Aplicativo de gerenciamento de clientes, rotas e financeiro de piscinas.",
+                    start_url: window.location.href,
+                    display: "standalone",
+                    background_color: "#f1f5f9",
+                    theme_color: "#0284c7",
+                    orientation: "portrait",
+                    icons: [
+                        { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                        { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                    ]
+                };
 
-            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            const manifestURL = URL.createObjectURL(manifestBlob);
-            document.getElementById('manifest-link').setAttribute('href', manifestURL);
+                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+                const manifestURL = URL.createObjectURL(manifestBlob);
+                const manifestLink = document.getElementById('manifest-link');
+                if (manifestLink) manifestLink.setAttribute('href', manifestURL);
 
-            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
-                const swCode = `
-                    self.addEventListener('install', (e) => self.skipWaiting());
-                    self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                    });
-                `;
-                const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl).catch(() => {});
-            }
+                if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+                    const swCode = `
+                        self.addEventListener('install', (e) => self.skipWaiting());
+                        self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+                        self.addEventListener('fetch', (e) => {
+                            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                        });
+                    `;
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swUrl).catch(() => {});
+                }
+            } catch (e) {}
         })();
 
-        let deferredPrompt;
+        let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('btn-install-pwa').classList.remove('hidden');
+            const btnInstall = document.getElementById('btn-install-pwa');
+            if (btnInstall) btnInstall.classList.remove('hidden');
         });
 
-        window.handleInstallClick = function() {
+        function handleInstallClick() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
@@ -716,164 +1020,15 @@
                     }
                     deferredPrompt = null;
                     document.getElementById('btn-install-pwa').classList.add('hidden');
-                });
+                }).catch(() => {});
             } else {
                 openBackupModal();
             }
-        };
-
-        // ---------------------------------------------------------------------
-        // 3. CONTROLE DE AUTENTICAÇÃO (LOGIN, RESET DE SENHA, LOGOUT)
-        // ---------------------------------------------------------------------
-        let unsubscribeClientes = null;
-        let unsubscribeConfig = null;
-
-        function stopRealtimeListeners() {
-            if (unsubscribeClientes) {
-                unsubscribeClientes();
-                unsubscribeClientes = null;
-            }
-            if (unsubscribeConfig) {
-                unsubscribeConfig();
-                unsubscribeConfig = null;
-            }
         }
 
-        function translateAuthError(code) {
-            switch (code) {
-                case 'auth/invalid-credential':
-                case 'auth/wrong-password':
-                case 'auth/user-not-found':
-                    return 'E-mail ou senha incorretos. Verifique seus dados e tente novamente.';
-                case 'auth/invalid-email':
-                    return 'O formato do e-mail informado é inválido.';
-                case 'auth/too-many-requests':
-                    return 'Muitas tentativas seguidas. Aguarde alguns minutos ou redefina sua senha.';
-                case 'auth/network-request-failed':
-                    return 'Sem conexão com a internet. Verifique sua rede para fazer o primeiro acesso.';
-                case 'auth/user-disabled':
-                    return 'Esta conta de usuário foi desativada.';
-                default:
-                    return 'Não foi possível entrar (' + (code || 'erro desconhecido') + ').';
-            }
-        }
-
-        function showLoginAlert(message, type = 'error') {
-            const box = document.getElementById('login-alert');
-            const msgEl = document.getElementById('login-alert-msg');
-            const iconEl = document.getElementById('login-alert-icon');
-
-            msgEl.textContent = message;
-            if (type === 'success') {
-                box.className = 'p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 border bg-emerald-50 text-emerald-800 border-emerald-200';
-                iconEl.setAttribute('data-lucide', 'check-circle-2');
-            } else {
-                box.className = 'p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 border bg-rose-50 text-rose-800 border-rose-200';
-                iconEl.setAttribute('data-lucide', 'alert-circle');
-            }
-            box.classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        window.togglePasswordVisibility = function() {
-            const input = document.getElementById('login-password');
-            const icon = document.getElementById('eye-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                input.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
-            }
-            lucide.createIcons();
-        };
-
-        window.handleLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const btn = document.getElementById('btn-login-submit');
-
-            document.getElementById('login-alert').classList.add('hidden');
-            btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Entrando...</span>`;
-            lucide.createIcons();
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // onAuthStateChanged assume a transição para o app
-            } catch (err) {
-                showLoginAlert(translateAuthError(err.code), 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i><span>Entrar no Sistema</span>`;
-                lucide.createIcons();
-            }
-        };
-
-        window.handlePasswordReset = async function() {
-            const email = document.getElementById('login-email').value.trim();
-            if (!email) {
-                showLoginAlert('Digite seu e-mail no campo acima primeiro e depois clique em "Esqueci minha senha".', 'error');
-                document.getElementById('login-email').focus();
-                return;
-            }
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showLoginAlert(`Enviamos um link de redefinição de senha para ${email}. Verifique sua caixa de entrada e spam.`, 'success');
-            } catch (err) {
-                showLoginAlert(translateAuthError(err.code), 'error');
-            }
-        };
-
-        window.confirmLogout = function() {
-            closeBackupModal();
-            document.getElementById('confirm-title').textContent = 'Sair da conta?';
-            document.getElementById('confirm-desc').textContent = 'Você precisará informar seu e-mail e senha novamente para acessar os clientes.';
-            
-            const yesBtn = document.getElementById('confirm-yes-btn');
-            yesBtn.textContent = 'Sim, sair';
-            yesBtn.onclick = async () => {
-                closeConfirmModal();
-                stopRealtimeListeners();
-                clients = [];
-                await signOut(auth);
-                showToast('Sessão encerrada com segurança.');
-            };
-
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        };
-
-        // Observador Principal de Autenticação
-        onAuthStateChanged(auth, (user) => {
-            document.getElementById('auth-loading-screen').classList.add('hidden');
-
-            if (user) {
-                // Usuário autenticado -> mostra app e inicia Firestore
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-shell').classList.remove('hidden');
-
-                const userEmail = user.email || 'Usuário Conectado';
-                document.getElementById('header-user-email').textContent = userEmail;
-                document.getElementById('settings-user-email').textContent = userEmail;
-
-                renderDayFilters();
-                initRealtimeListeners();
-            } else {
-                // Usuário desconectado -> encerra listeners e mostra tela de login
-                stopRealtimeListeners();
-                document.getElementById('app-shell').classList.add('hidden');
-                document.getElementById('login-screen').classList.remove('hidden');
-            }
-            lucide.createIcons();
-        });
-
         // ---------------------------------------------------------------------
-        // 4. ESTADO DA APLICAÇÃO E SINCRONIZAÇÃO EM TEMPO REAL (FIRESTORE)
+        // 3. CONSTANTES, ESTADO GLOBAL E HELPERS
         // ---------------------------------------------------------------------
-        const LEGACY_STORAGE_KEY = 'piscinas_mattei_clients_v1';
-
         const DAYS_LIST = [
             { id: 'Todos', label: 'Todos' },
             { id: 'Segunda', label: 'Seg' },
@@ -884,107 +1039,479 @@
             { id: 'Sábado', label: 'Sáb' }
         ];
 
+        const PLAN_FILTER_LIST = [
+            { id: 'Todos', label: 'Todos' },
+            { id: 'mensal', label: 'Mensalistas' },
+            { id: 'avulsa', label: 'Avulsos' }
+        ];
+
+        const FIN_FILTER_LIST = [
+            { id: 'Todos', label: 'Todos' },
+            { id: 'Pendente', label: 'Pendentes' },
+            { id: 'Pago', label: 'Pagos' }
+        ];
+
         const DEFAULT_TEMPLATES = {
             aviso: 'Olá {nome}, tudo bem? Aqui é da *Piscinas Mattei*! Estou a caminho para limpar a piscina!',
             concluido: 'Olá {nome}! Limpeza e tratamento concluídos! Tudo certo por aqui. Qualquer dúvida estou à disposição! 🏊‍♂️✨ - *Piscinas Mattei*',
-            cobranca: 'Olá {nome}! Passando para lembrar da mensalidade da piscina no valor de *{valor}*. Obrigado pela parceria! - *Piscinas Mattei*'
+            cobranca: 'Olá {nome}! Passando para lembrar do pagamento da piscina no valor de *{valor}*. Obrigado pela parceria! - *Piscinas Mattei*'
         };
+
+        const brlFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
         let waTemplates = { ...DEFAULT_TEMPLATES };
         let clients = [];
+        let activeMainTab = 'rota'; // 'rota' | 'clientes' | 'financeiro'
         let selectedDay = 'Todos';
+        let selectedPlanFilter = 'Todos';
+        let selectedFinFilter = 'Todos';
         let onlyPending = false;
-        let currentWaClient = null;
+        let currentWaContext = null; // { client, extraVisit }
         let isOfflineCache = false;
+        let unsubscribeClientes = null;
+        let unsubscribeConfig = null;
 
-        function updateSyncStatus(fromCache, hasPendingWrites) {
-            const badge = document.getElementById('sync-badge');
-            const dot = document.getElementById('sync-dot');
-            const text = document.getElementById('sync-text');
-
-            if (!navigator.onLine || fromCache || hasPendingWrites) {
-                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-950/50 border border-amber-400/30 text-[11px] font-semibold text-amber-200';
-                dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-                text.textContent = !navigator.onLine ? 'Modo Offline' : 'Sincronizando...';
-            } else {
-                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/45 border border-emerald-400/30 text-[11px] font-semibold text-emerald-200';
-                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                text.textContent = 'Nuvem Sincronizada';
-            }
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
-        window.addEventListener('online', () => updateSyncStatus(isOfflineCache, false));
-        window.addEventListener('offline', () => updateSyncStatus(true, false));
-
-        function initRealtimeListeners() {
-            stopRealtimeListeners();
-
-            unsubscribeClientes = onSnapshot(clientesCollection, { includeMetadataChanges: true }, (snapshot) => {
-                isOfflineCache = snapshot.metadata.fromCache;
-                updateSyncStatus(snapshot.metadata.fromCache, snapshot.metadata.hasPendingWrites);
-
-                const loaded = [];
-                snapshot.forEach((docSnap) => {
-                    loaded.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                loaded.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                clients = loaded;
-
-                updateStats();
-                renderDayFilters();
-                renderClients();
-            }, (error) => {
-                if (error.code === 'permission-denied') {
-                    showToast('Permissão negada no Firestore. Verifique as regras de segurança.', 'error');
-                } else {
-                    showToast('Erro ao sincronizar com a nuvem.', 'error');
-                }
-            });
-
-            unsubscribeConfig = onSnapshot(configDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    waTemplates = {
-                        aviso: data.aviso || DEFAULT_TEMPLATES.aviso,
-                        concluido: data.concluido || DEFAULT_TEMPLATES.concluido,
-                        cobranca: data.cobranca || DEFAULT_TEMPLATES.cobranca
-                    };
-                }
-                populateTemplateInputs();
-            }, () => {});
+        function formatBRL(val) {
+            const num = parseFloat(val);
+            return brlFormatter.format(isNaN(num) ? 0 : num);
         }
 
         function getTodayDayName() {
-            const map = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            return map[new Date().getDay()];
+            const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            return days[new Date().getDay()];
+        }
+
+        function getClientFullAddress(client) {
+            if (client.address && String(client.address).trim().length > 0) {
+                return String(client.address).trim();
+            }
+            const parts = [client.street, client.neighborhood, client.city].filter(Boolean);
+            return parts.join(', ');
+        }
+
+        function isClientMensal(client) {
+            const pt = (client.planType || 'mensal').toLowerCase();
+            return pt !== 'avulsa' && pt !== 'avulso';
+        }
+
+        function isClientActiveInWeek(client) {
+            if (isClientMensal(client)) return true;
+            if (typeof client.activeInRoute === 'boolean') return client.activeInRoute;
+            if (typeof client.activeInWeek === 'boolean') return client.activeInWeek;
+            return true;
+        }
+
+        function isClientCompleted(client) {
+            return Boolean(client.completed || client.cleanedThisWeek);
+        }
+
+        function isClientPaid(client) {
+            if (typeof client.paid === 'boolean') return client.paid;
+            return (client.payment || '').toLowerCase() === 'em dia' || (client.payment || '').toLowerCase() === 'pago';
+        }
+
+        function getClientLastVisit(client) {
+            return client.lastVisitDate || client.lastVisit || '';
+        }
+
+        function getClientTotalVisits(client) {
+            if (typeof client.totalVisits === 'number') return client.totalVisits;
+            if (typeof client.visitCount === 'number') return client.visitCount;
+            return getClientLastVisit(client) ? 1 : 0;
+        }
+
+        function getClientExtraVisits(client) {
+            if (Array.isArray(client.extraVisits)) return client.extraVisits;
+            if (Array.isArray(client.visitasExtras)) return client.visitasExtras;
+            return [];
+        }
+
+        function normalizeExtraVisit(raw) {
+            return {
+                id: raw.id || ('ext_' + Math.random().toString(36).slice(2, 8)),
+                day: raw.day || raw.dia || 'Segunda',
+                reason: raw.reason || raw.motivo || 'Visita Extra',
+                value: parseFloat(raw.value !== undefined ? raw.value : raw.valor) || 0,
+                completed: Boolean(raw.completed !== undefined ? raw.completed : raw.concluido),
+                paid: Boolean(raw.paid !== undefined ? raw.paid : raw.pago),
+                createdAt: raw.createdAt || raw.dataCriacao || ''
+            };
+        }
+
+        function getAllRouteItems() {
+            const items = [];
+            clients.forEach(client => {
+                if (isClientActiveInWeek(client)) {
+                    items.push({
+                        kind: 'main',
+                        key: `main-${client.id}`,
+                        client,
+                        extra: null,
+                        day: client.day || 'Segunda',
+                        completed: isClientCompleted(client)
+                    });
+                }
+                if (isClientMensal(client)) {
+                    getClientExtraVisits(client).forEach(rawEx => {
+                        const extra = normalizeExtraVisit(rawEx);
+                        items.push({
+                            kind: 'extra',
+                            key: `extra-${client.id}-${extra.id}`,
+                            client,
+                            extra,
+                            day: extra.day,
+                            completed: extra.completed
+                        });
+                    });
+                }
+            });
+            return items;
+        }
+
+        function getAllFinancialEntries() {
+            const entries = [];
+            clients.forEach(client => {
+                const isMensal = isClientMensal(client);
+                const activeNow = isClientActiveInWeek(client);
+                const mainValue = parseFloat(client.price) || 0;
+                const mainPaid = isClientPaid(client);
+
+                if (isMensal || activeNow || (!mainPaid && mainValue > 0)) {
+                    entries.push({
+                        kind: 'main',
+                        key: `fin-main-${client.id}`,
+                        client,
+                        extra: null,
+                        value: mainValue,
+                        paid: mainPaid
+                    });
+                }
+
+                if (isMensal) {
+                    getClientExtraVisits(client).forEach(rawEx => {
+                        const extra = normalizeExtraVisit(rawEx);
+                        if (extra.value > 0) {
+                            entries.push({
+                                kind: 'extra',
+                                key: `fin-extra-${client.id}-${extra.id}`,
+                                client,
+                                extra,
+                                value: extra.value,
+                                paid: extra.paid
+                            });
+                        }
+                    });
+                }
+            });
+            return entries;
         }
 
         // ---------------------------------------------------------------------
-        // 5. RENDERIZAÇÃO DA INTERFACE E FILTROS
+        // 4. AUTENTICAÇÃO (FIREBASE AUTH)
         // ---------------------------------------------------------------------
-        window.renderDayFilters = function() {
+        function showLoginAlert(message, isSuccess = false) {
+            const alertBox = document.getElementById('login-alert');
+            const alertMsg = document.getElementById('login-alert-msg');
+            alertMsg.textContent = message;
+            alertBox.className = isSuccess
+                ? 'p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 border bg-emerald-50 text-emerald-800 border-emerald-200'
+                : 'p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 border bg-rose-50 text-rose-800 border-rose-200';
+            alertBox.classList.remove('hidden');
+        }
+
+        function hideLoginAlert() {
+            document.getElementById('login-alert').classList.add('hidden');
+        }
+
+        function getFriendlyAuthError(code) {
+            switch (code) {
+                case 'auth/invalid-credential':
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                    return 'E-mail ou senha incorretos. Verifique seus dados e tente novamente.';
+                case 'auth/invalid-email':
+                    return 'O formato do e-mail informado é inválido.';
+                case 'auth/too-many-requests':
+                    return 'Muitas tentativas seguidas. Aguarde alguns minutos e tente novamente.';
+                case 'auth/network-request-failed':
+                    return 'Sem conexão com a internet para validar o login.';
+                case 'auth/unauthorized-domain':
+                    return 'Domínio não autorizado no Firebase Authentication. Adicione este domínio em Authorized Domains.';
+                default:
+                    return 'Não foi possível entrar. Verifique suas credenciais (' + code + ').';
+            }
+        }
+
+        document.getElementById('btn-toggle-pass').addEventListener('click', () => {
+            const passInput = document.getElementById('login-password');
+            const iconOpen = document.getElementById('eye-icon-open');
+            const iconClosed = document.getElementById('eye-icon-closed');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                iconOpen.classList.add('hidden');
+                iconClosed.classList.remove('hidden');
+            } else {
+                passInput.type = 'password';
+                iconOpen.classList.remove('hidden');
+                iconClosed.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideLoginAlert();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const submitBtn = document.getElementById('btn-login-submit');
+            const originalHTML = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<svg class="w-4 h-4 animate-spin-slow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Entrando...</span>`;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showLoginAlert(getFriendlyAuthError(error.code));
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHTML;
+            }
+        });
+
+        document.getElementById('btn-forgot-password').addEventListener('click', async () => {
+            hideLoginAlert();
+            const email = document.getElementById('login-email').value.trim();
+            if (!email) {
+                showLoginAlert('Digite seu e-mail no campo acima primeiro para receber o link de redefinição de senha.');
+                document.getElementById('login-email').focus();
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showLoginAlert(`Link de redefinição enviado para ${email}. Verifique sua caixa de entrada e spam.`, true);
+            } catch (error) {
+                showLoginAlert(getFriendlyAuthError(error.code));
+            }
+        });
+
+        function confirmLogout() {
+            document.getElementById('confirm-title').textContent = 'Sair da conta?';
+            document.getElementById('confirm-desc').textContent = 'Você precisará informar seu e-mail e senha novamente para acessar os clientes.';
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.textContent = 'Sair agora';
+            yesBtn.onclick = async () => {
+                closeModal('confirm-modal');
+                try {
+                    await signOut(auth);
+                    showToast('Sessão encerrada com segurança.');
+                } catch (err) {
+                    showToast('Erro ao sair da conta.', 'error');
+                }
+            };
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        // ---------------------------------------------------------------------
+        // 5. SINCRONIZAÇÃO EM TEMPO REAL COM FIRESTORE (onSnapshot)
+        // ---------------------------------------------------------------------
+        function updateSyncStatusUI() {
+            const dot = document.getElementById('sync-dot');
+            const text = document.getElementById('sync-text');
+            const badge = document.getElementById('sync-badge');
+
+            if (!navigator.onLine || isOfflineCache) {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                text.textContent = 'Modo Offline';
+                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-900/50 border border-amber-300/30 text-[11px] font-semibold text-amber-200';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                text.textContent = 'Nuvem Sincronizada';
+                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/45 border border-emerald-300/30 text-[11px] font-semibold text-emerald-200';
+            }
+        }
+
+        window.addEventListener('online', updateSyncStatusUI);
+        window.addEventListener('offline', updateSyncStatusUI);
+
+        function startFirestoreListeners() {
+            stopFirestoreListeners();
+
+            unsubscribeClientes = onSnapshot(
+                clientesCollection,
+                { includeMetadataChanges: true },
+                (snapshot) => {
+                    isOfflineCache = snapshot.metadata.fromCache && !navigator.onLine;
+                    updateSyncStatusUI();
+
+                    clients = snapshot.docs.map(docSnap => ({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    }));
+
+                    refreshAllViews();
+                },
+                (error) => {
+                    console.error('Erro Firestore clientes:', error);
+                    if (error.code === 'permission-denied') {
+                        showToast('Permissão negada no Firestore. Verifique as regras.', 'error');
+                    } else {
+                        isOfflineCache = true;
+                        updateSyncStatusUI();
+                    }
+                }
+            );
+
+            unsubscribeConfig = onSnapshot(
+                whatsappConfigDocRef,
+                (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        waTemplates = {
+                            aviso: data.aviso || DEFAULT_TEMPLATES.aviso,
+                            concluido: data.concluido || DEFAULT_TEMPLATES.concluido,
+                            cobranca: data.cobranca || DEFAULT_TEMPLATES.cobranca
+                        };
+                    } else {
+                        setDoc(whatsappConfigDocRef, DEFAULT_TEMPLATES).catch(() => {});
+                    }
+                },
+                () => {}
+            );
+        }
+
+        function stopFirestoreListeners() {
+            if (unsubscribeClientes) {
+                unsubscribeClientes();
+                unsubscribeClientes = null;
+            }
+            if (unsubscribeConfig) {
+                unsubscribeConfig();
+                unsubscribeConfig = null;
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            document.getElementById('auth-loading-screen').classList.add('hidden');
+
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-shell').classList.remove('hidden');
+
+                const emailText = user.email || 'Administrador';
+                document.getElementById('header-user-email').textContent = emailText;
+                document.getElementById('settings-user-email').textContent = emailText;
+
+                startFirestoreListeners();
+                refreshAllViews();
+            } else {
+                stopFirestoreListeners();
+                clients = [];
+                document.getElementById('app-shell').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+        });
+
+        // ---------------------------------------------------------------------
+        // 6. NAVEGAÇÃO ENTRE ABAS (ROTA | CLIENTES | FINANCEIRO)
+        // ---------------------------------------------------------------------
+        function switchMainTab(tab) {
+            activeMainTab = tab;
+
+            const tabs = ['rota', 'clientes', 'financeiro'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                const badge = document.getElementById(`tab-badge-${t}`);
+                const isActive = t === tab;
+
+                if (isActive) {
+                    btn.className = 'h-12 px-1 sm:px-3 border-b-2 border-pool-600 text-pool-700 flex items-center justify-center gap-1 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition';
+                    view.classList.remove('hidden');
+                    if (t === 'financeiro') {
+                        badge.className = 'px-1.5 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-bold shrink-0';
+                    } else {
+                        badge.className = 'px-1.5 py-0.5 text-[10px] rounded-full bg-pool-100 text-pool-800 font-bold shrink-0';
+                    }
+                } else {
+                    btn.className = 'h-12 px-1 sm:px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition';
+                    view.classList.add('hidden');
+                    if (t === 'financeiro') {
+                        badge.className = 'px-1.5 py-0.5 text-[10px] rounded-full bg-amber-50 text-amber-700 font-bold shrink-0';
+                    } else {
+                        badge.className = 'px-1.5 py-0.5 text-[10px] rounded-full bg-slate-100 text-slate-600 font-bold shrink-0';
+                    }
+                }
+            });
+
+            refreshAllViews();
+        }
+
+        function refreshAllViews() {
+            updateStats();
+            renderDayFilters();
+            renderClients();
+            renderPlanTypeFilters();
+            renderBaseClients();
+            renderFinFilters();
+            renderFinanceiro();
+        }
+
+        function updateStats() {
+            const routeItems = getAllRouteItems();
+            const weekTotal = routeItems.length;
+            const weekCompleted = routeItems.filter(item => item.completed).length;
+            const weekPending = weekTotal - weekCompleted;
+
+            document.getElementById('stat-week-total').textContent = weekTotal;
+            document.getElementById('stat-week-completed').textContent = weekCompleted;
+            document.getElementById('stat-week-pending').textContent = weekPending;
+
+            const finEntries = getAllFinancialEntries();
+            const pendingPaymentCount = finEntries.filter(e => !e.paid).length;
+
+            document.getElementById('tab-badge-rota').textContent = weekTotal;
+            document.getElementById('tab-badge-clientes').textContent = clients.length;
+            document.getElementById('tab-badge-financeiro').textContent = pendingPaymentCount;
+        }
+
+        // ---------------------------------------------------------------------
+        // 7. ABA 1: ROTA SEMANAL
+        // ---------------------------------------------------------------------
+        function renderDayFilters() {
             const container = document.getElementById('day-filters');
+            if (!container) return;
             const todayName = getTodayDayName();
+            const routeItems = getAllRouteItems();
 
             container.innerHTML = DAYS_LIST.map(d => {
                 const isSelected = selectedDay === d.id;
                 const isToday = d.id === todayName;
-                
                 const count = d.id === 'Todos' 
-                    ? clients.length 
-                    : clients.filter(c => c.day === d.id).length;
+                    ? routeItems.length 
+                    : routeItems.filter(item => item.day === d.id).length;
 
                 return `
                     <button 
-                        onclick="selectDay('${d.id}')"
+                        type="button"
+                        data-day="${escapeHTML(d.id)}"
                         class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap border ${
                             isSelected 
                             ? 'bg-pool-600 text-white border-pool-600 shadow-sm' 
                             : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                         }"
                     >
-                        <span>${d.label}</span>
+                        <span>${escapeHTML(d.label)}</span>
                         ${isToday ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-pool-500'}" title="Hoje"></span>` : ''}
                         <span class="text-[10px] px-1.5 py-0.5 rounded-md ${
                             isSelected ? 'bg-pool-700 text-pool-100' : 'bg-slate-100 text-slate-500'
@@ -992,656 +1519,62 @@
                     </button>
                 `;
             }).join('');
-        };
+        }
 
-        window.selectDay = function(day) {
+        function selectDayFilter(day) {
             selectedDay = day;
             renderDayFilters();
             renderClients();
-        };
+        }
 
-        window.filterToday = function() {
+        function filterToday() {
             const today = getTodayDayName();
             if (today === 'Domingo') {
                 showToast('Hoje é Domingo! Mostrando todos os clientes.');
-                selectDay('Todos');
+                selectDayFilter('Todos');
             } else {
-                selectDay(today);
+                selectDayFilter(today);
+                showToast(`Mostrando rota de ${today}`);
             }
-        };
+        }
 
-        window.togglePendingFilter = function() {
+        function togglePendingFilter() {
             onlyPending = !onlyPending;
             const btn = document.getElementById('btn-filter-pending');
             if (onlyPending) {
-                btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
-                btn.classList.add('bg-amber-500', 'text-white', 'border-amber-500');
+                btn.classList.add('bg-amber-50', 'border-amber-400', 'text-amber-800');
+                btn.classList.remove('bg-white', 'border-slate-200', 'text-slate-700');
             } else {
-                btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
-                btn.classList.remove('bg-amber-500', 'text-white', 'border-amber-500');
+                btn.classList.remove('bg-amber-50', 'border-amber-400', 'text-amber-800');
+                btn.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
             }
             renderClients();
-        };
+        }
 
-        window.clearSearch = function() {
-            document.getElementById('search-input').value = '';
-            renderClients();
-        };
-
-        window.resetFilters = function() {
+        function clearAllFilters() {
             selectedDay = 'Todos';
             onlyPending = false;
             document.getElementById('search-input').value = '';
             const btn = document.getElementById('btn-filter-pending');
-            btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
-            btn.classList.remove('bg-amber-500', 'text-white', 'border-amber-500');
+            btn.classList.remove('bg-amber-50', 'border-amber-400', 'text-amber-800');
+            btn.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
             renderDayFilters();
             renderClients();
-        };
-
-        function updateStats() {
-            const todayName = getTodayDayName();
-            
-            document.getElementById('stat-total').textContent = clients.length;
-            
-            const todayPending = clients.filter(c => c.day === todayName && !c.cleanedThisWeek).length;
-            const weekPending = clients.filter(c => !c.cleanedThisWeek).length;
-            document.getElementById('stat-today-pending').textContent = todayPending;
-            document.getElementById('stat-week-pending').textContent = weekPending;
-
-            const paidRevenue = clients
-                .filter(c => c.payment === 'Em dia')
-                .reduce((sum, c) => sum + (parseFloat(c.price) || 0), 0);
-            const pendingRevenue = clients
-                .filter(c => c.payment === 'Pendente')
-                .reduce((sum, c) => sum + (parseFloat(c.price) || 0), 0);
-
-            document.getElementById('stat-paid-rev').textContent = paidRevenue.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                maximumFractionDigits: 0
-            });
-            document.getElementById('stat-pending-rev').textContent = pendingRevenue.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                maximumFractionDigits: 0
-            });
         }
 
-        window.renderClients = function() {
+        function renderClients() {
             const listEl = document.getElementById('clients-list');
             const emptyEl = document.getElementById('empty-state');
             const searchInput = document.getElementById('search-input');
             const clearBtn = document.getElementById('clear-search');
             const query = searchInput.value.trim().toLowerCase();
 
-            if (query.length > 0) {
-                clearBtn.classList.remove('hidden');
-            } else {
-                clearBtn.classList.add('hidden');
-            }
+            clearBtn.classList.toggle('hidden', query.length === 0);
 
-            const filtered = clients.filter(c => {
-                const matchDay = selectedDay === 'Todos' || c.day === selectedDay;
-                const matchPending = !onlyPending || (c.payment === 'Pendente' || !c.cleanedThisWeek);
-                const matchQuery = !query || 
-                    (c.name || '').toLowerCase().includes(query) ||
-                    (c.neighborhood || '').toLowerCase().includes(query) ||
-                    (c.street || '').toLowerCase().includes(query);
-                return matchDay && matchPending && matchQuery;
-            });
+            const routeItems = getAllRouteItems();
 
-            const labelEl = document.getElementById('results-label');
-            labelEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'cliente' : 'clientes'}`;
-
-            if (filtered.length === 0) {
-                listEl.innerHTML = '';
-                emptyEl.classList.remove('hidden');
-                lucide.createIcons();
-                return;
-            }
-
-            emptyEl.classList.add('hidden');
-
-            listEl.innerHTML = filtered.map(client => {
-                const fullAddress = `${client.street}, ${client.neighborhood}, ${client.city}`;
-                const encodedAddress = encodeURIComponent(fullAddress);
-                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-                const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
-                
-                const isPaid = client.payment === 'Em dia';
-                const isCleaned = Boolean(client.cleanedThisWeek);
-                const priceFormatted = (parseFloat(client.price) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const dueDayText = client.dueDay ? ` • Venc. dia ${client.dueDay}` : '';
-                const poolInfo = client.poolType || client.frequency || '';
-
-                return `
-                <article class="bg-white rounded-2xl border ${isCleaned ? 'border-emerald-300' : 'border-slate-200'} shadow-sm overflow-hidden transition hover:border-pool-300">
-                    <!-- Topo do Card: Nome, Dia, Pagamento e Editar -->
-                    <div class="p-4 pb-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHtml(client.name)}</h3>
-                                    <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-pool-50 text-pool-700 border border-pool-200">
-                                        ${escapeHtml(client.day)}${poolInfo ? ` • ${escapeHtml(poolInfo)}` : ''}
-                                    </span>
-                                </div>
-                                <p class="text-xs font-medium text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
-                                    <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
-                                    <span>${escapeHtml(client.phone)}</span>
-                                    <span class="text-slate-300">|</span>
-                                    <span class="font-bold text-slate-800">${priceFormatted}${dueDayText}</span>
-                                </p>
-                            </div>
-
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <!-- Badge Pagamento Clicável -->
-                                <button 
-                                    onclick="togglePaymentStatus('${client.id}')" 
-                                    title="Toque para alternar status de pagamento"
-                                    class="px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition active:scale-95 ${
-                                        isPaid 
-                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' 
-                                        : 'bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100'
-                                    }"
-                                >
-                                    <i data-lucide="${isPaid ? 'check-circle-2' : 'clock'}" class="w-3.5 h-3.5"></i>
-                                    <span>${isPaid ? 'Pago' : 'Pendente'}</span>
-                                </button>
-
-                                <!-- Botão Editar -->
-                                <button 
-                                    onclick="openClientModal('${client.id}')" 
-                                    title="Editar cliente"
-                                    class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
-                                >
-                                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- BLOCO DE ENDEREÇO + BOTÕES DIRETOS WAZE E GOOGLE MAPS -->
-                        <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200/90 space-y-2.5">
-                            <div class="flex items-start gap-2 min-w-0">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i>
-                                <div class="min-w-0">
-                                    <p class="text-xs font-bold text-slate-900">${escapeHtml(client.street)}</p>
-                                    <p class="text-[11px] font-medium text-slate-600">${escapeHtml(client.neighborhood)} - ${escapeHtml(client.city)}</p>
-                                </div>
-                            </div>
-
-                            <!-- Botões GPS grandes lado a lado -->
-                            <div class="grid grid-cols-2 gap-2">
-                                <a 
-                                    href="${wazeUrl}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    title="Abrir rota no Waze"
-                                    class="py-2.5 px-3 bg-sky-500 hover:bg-sky-600 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition"
-                                >
-                                    <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
-                                    <span>Waze</span>
-                                </a>
-                                <a 
-                                    href="${mapsUrl}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    title="Abrir rota no Google Maps"
-                                    class="py-2.5 px-3 bg-white hover:bg-blue-50 active:scale-98 text-blue-700 border border-slate-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition"
-                                >
-                                    <i data-lucide="map" class="w-3.5 h-3.5 text-blue-600"></i>
-                                    <span>Google Maps</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- OBSERVAÇÕES QUÍMICAS / ACESSO -->
-                        ${client.notes ? `
-                        <div class="mt-2.5 px-3 py-2 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-start gap-2">
-                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0"></i>
-                            <p class="text-xs text-slate-800 leading-relaxed">${escapeHtml(client.notes)}</p>
-                        </div>
-                        ` : ''}
-                    </div>
-
-                    <!-- RODAPÉ DO CARD: CONCLUIR LIMPEZA E WHATSAPP DIRETO -->
-                    <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2.5">
-                        <!-- Botão Concluir Limpeza -->
-                        <button 
-                            onclick="toggleVisitCompleted('${client.id}')"
-                            class="flex-1 py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-98 border ${
-                                isCleaned 
-                                ? 'bg-pool-100 text-pool-900 border-pool-300' 
-                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
-                            }"
-                        >
-                            <i data-lucide="${isCleaned ? 'check-check' : 'check'}" class="w-4 h-4 ${isCleaned ? 'text-pool-700' : 'text-slate-400'}"></i>
-                            <span>${isCleaned ? `Concluída (${client.lastVisit ? client.lastVisit.slice(0,5) : 'OK'})` : 'Concluir Limpeza'}</span>
-                        </button>
-
-                        <!-- Botão Direto WhatsApp -->
-                        <button 
-                            onclick="openWhatsAppModal('${client.id}')"
-                            class="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/20 transition"
-                        >
-                            <i data-lucide="message-circle" class="w-4 h-4"></i>
-                            <span>WhatsApp</span>
-                        </button>
-                    </div>
-                </article>
-                `;
-            }).join('');
-
-            lucide.createIcons();
-        };
-
-        // ---------------------------------------------------------------------
-        // 6. AÇÕES RÁPIDAS NOS CARDS (FIRESTORE UPDATE)
-        // ---------------------------------------------------------------------
-        window.togglePaymentStatus = async function(id) {
-            const client = clients.find(c => c.id === id);
-            if (!client) return;
-            
-            const newStatus = client.payment === 'Em dia' ? 'Pendente' : 'Em dia';
-            try {
-                await updateDoc(doc(db, 'clientes', id), { payment: newStatus });
-                showToast(`Pagamento: ${newStatus === 'Em dia' ? 'Pago' : 'Pendente'}`);
-            } catch (err) {
-                showToast('Erro ao atualizar pagamento.', 'error');
-            }
-        };
-
-        window.toggleVisitCompleted = async function(id) {
-            const client = clients.find(c => c.id === id);
-            if (!client) return;
-
-            const willBeCleaned = !client.cleanedThisWeek;
-            const todayStr = new Date().toLocaleDateString('pt-BR');
-
-            try {
-                await updateDoc(doc(db, 'clientes', id), {
-                    cleanedThisWeek: willBeCleaned,
-                    lastVisit: willBeCleaned ? todayStr : (client.lastVisit || '')
-                });
-
-                if (willBeCleaned) {
-                    openWhatsAppModal(id, 'concluido');
-                    showToast('Limpeza concluída e sincronizada!');
-                } else {
-                    showToast('Status da limpeza desmarcado.');
-                }
-            } catch (err) {
-                showToast('Erro ao atualizar limpeza.', 'error');
-            }
-        };
-
-        window.confirmResetWeek = function() {
-            const cleanedClients = clients.filter(c => c.cleanedThisWeek);
-            if (cleanedClients.length === 0) {
-                showToast('Nenhuma limpeza marcada nesta semana.');
-                return;
-            }
-
-            document.getElementById('confirm-title').textContent = 'Resetar semana?';
-            document.getElementById('confirm-desc').textContent = `Isso vai desmarcar "Limpeza Concluída" de ${cleanedClients.length} cliente(s) para iniciar uma nova semana.`;
-            
-            const yesBtn = document.getElementById('confirm-yes-btn');
-            yesBtn.textContent = 'Sim, resetar';
-            yesBtn.onclick = async () => {
-                closeConfirmModal();
-                try {
-                    const batch = writeBatch(db);
-                    cleanedClients.forEach(c => {
-                        batch.update(doc(db, 'clientes', c.id), { cleanedThisWeek: false });
-                    });
-                    await batch.commit();
-                    showToast('Semana resetada na nuvem!');
-                } catch (err) {
-                    showToast('Erro ao resetar semana.', 'error');
-                }
-            };
-
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        };
-
-        window.openWhatsAppModal = function(id, defaultTemplate = 'aviso') {
-            const client = clients.find(c => c.id === id);
-            if (!client) return;
-
-            currentWaClient = client;
-            document.getElementById('wa-client-name').textContent = `${client.name} • ${client.phone}`;
-            setWaTemplate(defaultTemplate);
-            document.getElementById('whatsapp-modal').classList.remove('hidden');
-        };
-
-        window.closeWhatsAppModal = function() {
-            document.getElementById('whatsapp-modal').classList.add('hidden');
-            currentWaClient = null;
-        };
-
-        window.setWaTemplate = function(type) {
-            if (!currentWaClient) return;
-            if (type === 'vazio') {
-                document.getElementById('wa-message-text').value = '';
-                return;
-            }
-
-            const firstName = (currentWaClient.name || 'Cliente').split(' ')[0];
-            const priceFormatted = (parseFloat(currentWaClient.price) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
-            const rawTpl = waTemplates[type] || DEFAULT_TEMPLATES[type] || '';
-            const msg = rawTpl
-                .replace(/\{nome\}/gi, firstName)
-                .replace(/\{valor\}/gi, priceFormatted);
-
-            document.getElementById('wa-message-text').value = msg;
-        };
-
-        window.sendWhatsAppNow = function() {
-            if (!currentWaClient) return;
-            let cleanPhone = (currentWaClient.phone || '').replace(/\D/g, '');
-            if (cleanPhone.length <= 11) {
-                cleanPhone = '55' + cleanPhone;
-            }
-            const rawText = document.getElementById('wa-message-text').value.trim();
-            const waUrl = rawText 
-                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`
-                : `https://wa.me/${cleanPhone}`;
-            
-            window.open(waUrl, '_blank', 'noopener,noreferrer');
-            closeWhatsAppModal();
-        };
-
-        // ---------------------------------------------------------------------
-        // 7. CRUD DE CLIENTES NO FIRESTORE (addDoc, updateDoc, deleteDoc)
-        // ---------------------------------------------------------------------
-        window.openClientModal = function(id = null) {
-            const modal = document.getElementById('client-modal');
-            const form = document.getElementById('client-form');
-            const title = document.getElementById('modal-title');
-            const deleteBtn = document.getElementById('btn-delete-client');
-
-            form.reset();
-
-            if (id) {
-                const client = clients.find(c => c.id === id);
-                if (!client) return;
-
-                title.textContent = 'Editar Cliente';
-                document.getElementById('client-id').value = client.id;
-                document.getElementById('client-name').value = client.name || '';
-                document.getElementById('client-phone').value = client.phone || '';
-                document.getElementById('client-street').value = client.street || '';
-                document.getElementById('client-neighborhood').value = client.neighborhood || '';
-                document.getElementById('client-city').value = client.city || 'Joinville - SC';
-                document.getElementById('client-day').value = client.day || 'Segunda';
-                document.getElementById('client-pool-type').value = client.poolType || client.frequency || '';
-                document.getElementById('client-price').value = client.price || '';
-                document.getElementById('client-due-day').value = client.dueDay || '';
-                document.getElementById('client-payment').value = client.payment || 'Em dia';
-                document.getElementById('client-notes').value = client.notes || '';
-                
-                deleteBtn.classList.remove('hidden');
-            } else {
-                title.textContent = 'Novo Cliente';
-                document.getElementById('client-id').value = '';
-                document.getElementById('client-city').value = 'Joinville - SC';
-                
-                if (selectedDay !== 'Todos') {
-                    document.getElementById('client-day').value = selectedDay;
-                }
-                deleteBtn.classList.add('hidden');
-            }
-
-            modal.classList.remove('hidden');
-        };
-
-        window.closeClientModal = function() {
-            document.getElementById('client-modal').classList.add('hidden');
-        };
-
-        window.saveClient = async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('client-id').value;
-            
-            const clientData = {
-                name: document.getElementById('client-name').value.trim(),
-                phone: document.getElementById('client-phone').value.trim(),
-                street: document.getElementById('client-street').value.trim(),
-                neighborhood: document.getElementById('client-neighborhood').value.trim(),
-                city: document.getElementById('client-city').value.trim() || 'Joinville - SC',
-                day: document.getElementById('client-day').value,
-                poolType: document.getElementById('client-pool-type').value.trim(),
-                price: parseFloat(document.getElementById('client-price').value) || 0,
-                dueDay: parseInt(document.getElementById('client-due-day').value) || null,
-                payment: document.getElementById('client-payment').value,
-                notes: document.getElementById('client-notes').value.trim()
-            };
-
-            closeClientModal();
-
-            try {
-                if (id) {
-                    await updateDoc(doc(db, 'clientes', id), clientData);
-                    showToast('Cliente atualizado na nuvem!');
-                } else {
-                    clientData.cleanedThisWeek = false;
-                    clientData.lastVisit = '';
-                    clientData.createdAt = Date.now();
-                    await addDoc(clientesCollection, clientData);
-                    showToast('Novo cliente salvo na nuvem!');
-                }
-            } catch (err) {
-                showToast('Erro ao salvar cliente.', 'error');
-            }
-        };
-
-        window.confirmDeleteClient = function() {
-            const id = document.getElementById('client-id').value;
-            const client = clients.find(c => c.id === id);
-            if (!client) return;
-
-            document.getElementById('confirm-title').textContent = `Excluir ${client.name}?`;
-            document.getElementById('confirm-desc').textContent = 'Todos os dados deste cliente serão removidos da nuvem permanentemente.';
-            
-            const yesBtn = document.getElementById('confirm-yes-btn');
-            yesBtn.textContent = 'Sim, excluir';
-            yesBtn.onclick = async () => {
-                closeConfirmModal();
-                closeClientModal();
-                try {
-                    await deleteDoc(doc(db, 'clientes', id));
-                    showToast('Cliente excluído com sucesso.');
-                } catch (err) {
-                    showToast('Erro ao excluir cliente.', 'error');
-                }
-            };
-
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        };
-
-        window.closeConfirmModal = function() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-        };
-
-        // ---------------------------------------------------------------------
-        // 8. CONFIGURAÇÕES NA NUVEM, MIGRAÇÃO LOCAL E BACKUP JSON
-        // ---------------------------------------------------------------------
-        function populateTemplateInputs() {
-            document.getElementById('tpl-aviso').value = waTemplates.aviso;
-            document.getElementById('tpl-concluido').value = waTemplates.concluido;
-            document.getElementById('tpl-cobranca').value = waTemplates.cobranca;
-        }
-
-        window.saveTemplatesToCloud = async function() {
-            const updated = {
-                aviso: document.getElementById('tpl-aviso').value.trim() || DEFAULT_TEMPLATES.aviso,
-                concluido: document.getElementById('tpl-concluido').value.trim() || DEFAULT_TEMPLATES.concluido,
-                cobranca: document.getElementById('tpl-cobranca').value.trim() || DEFAULT_TEMPLATES.cobranca
-            };
-
-            try {
-                await setDoc(configDocRef, updated, { merge: true });
-                waTemplates = updated;
-                showToast('Mensagens padrão salvas na nuvem!');
-            } catch (err) {
-                showToast('Erro ao salvar mensagens.', 'error');
-            }
-        };
-
-        function checkLegacyLocalStorage() {
-            const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-            const box = document.getElementById('local-migration-box');
-            if (!raw) {
-                box.classList.add('hidden');
-                return;
-            }
-            try {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    document.getElementById('local-migration-desc').textContent = `Encontramos ${parsed.length} cliente(s) salvos anteriormente no armazenamento local deste celular.`;
-                    box.classList.remove('hidden');
-                } else {
-                    box.classList.add('hidden');
-                }
-            } catch (e) {
-                box.classList.add('hidden');
-            }
-        }
-
-        window.migrateLocalStorageToFirebase = async function() {
-            const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-            if (!raw) return;
-
-            try {
-                const parsed = JSON.parse(raw);
-                if (!Array.isArray(parsed) || parsed.length === 0) return;
-
-                const batch = writeBatch(db);
-                parsed.forEach((item, index) => {
-                    const newRef = doc(clientesCollection);
-                    const { id, ...cleanData } = item;
-                    batch.set(newRef, {
-                        ...cleanData,
-                        cleanedThisWeek: Boolean(item.cleanedThisWeek),
-                        dueDay: item.dueDay || null,
-                        createdAt: Date.now() - (index * 1000)
-                    });
-                });
-
-                await batch.commit();
-                localStorage.removeItem(LEGACY_STORAGE_KEY);
-                checkLegacyLocalStorage();
-                showToast(`${parsed.length} clientes migrados para o Firebase!`);
-            } catch (err) {
-                showToast('Erro ao migrar dados locais.', 'error');
-            }
-        };
-
-        window.openBackupModal = function() {
-            populateTemplateInputs();
-            checkLegacyLocalStorage();
-            document.getElementById('backup-modal').classList.remove('hidden');
-        };
-
-        window.closeBackupModal = function() {
-            document.getElementById('backup-modal').classList.add('hidden');
-        };
-
-        window.exportData = function() {
-            const dataStr = JSON.stringify(clients, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const dateTag = new Date().toISOString().slice(0, 10);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `piscinas-mattei-nuvem-${dateTag}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('Backup JSON exportado!');
-        };
-
-        window.importData = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        const batch = writeBatch(db);
-                        imported.forEach((item, idx) => {
-                            const newRef = doc(clientesCollection);
-                            const { id, ...cleanData } = item;
-                            batch.set(newRef, {
-                                ...cleanData,
-                                cleanedThisWeek: Boolean(item.cleanedThisWeek),
-                                dueDay: item.dueDay || null,
-                                createdAt: Date.now() - (idx * 1000)
-                            });
-                        });
-                        await batch.commit();
-                        closeBackupModal();
-                        showToast(`${imported.length} clientes enviados para a nuvem!`);
-                    } else {
-                        showToast('Arquivo de backup inválido.', 'error');
-                    }
-                } catch (err) {
-                    showToast('Erro ao importar JSON para a nuvem.', 'error');
-                }
-                event.target.value = '';
-            };
-            reader.readAsText(file);
-        };
-
-        window.maskPhone = function(input) {
-            let v = input.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            
-            if (v.length > 6) {
-                v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (v.length > 2) {
-                v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
-            } else if (v.length > 0) {
-                v = v.replace(/^(\d*)/, '($1');
-            }
-            input.value = v;
-        };
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        let toastTimer;
-        function showToast(msg, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastMsg.textContent = msg;
-            toastIcon.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'check-circle-2');
-            toastIcon.className = type === 'error' ? 'w-4 h-4 text-rose-400' : 'w-4 h-4 text-emerald-400';
-
-            toast.classList.remove('hidden');
-            lucide.createIcons();
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-        });
-    </script>
-</body>
-</html>
+            const filtered = routeItems.filter(item => {
+                const c = item.client;
+                const fullAddr = getClientFullAddress(c).toLowerCase();
+                const matchDay = selectedDay === 'Todos' || item.day === selectedDay;
+                const matchPending = !on
